@@ -1,0 +1,11 @@
+# ROS 2 build outputs
+/build/
+/install/
+/log/
+
+# Local VS Code settings
+/.vscode/
+
+# Python bytecode
+__pycache__/
+*.pyc
