@@ -1,0 +1,26 @@
+[0.946s] Invoking command in '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/src/simcode/fw_mid_sim': PYTHONPATH=/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/fw_mid_sim build --build-base /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/build install --record /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/install.log --install-scripts $base/lib/fw_mid_sim --single-version-externally-managed install_data
+[1.227s] running egg_info
+[1.244s] writing ../../../build/fw_mid_sim/fw_mid_sim.egg-info/PKG-INFO
+[1.244s] writing dependency_links to ../../../build/fw_mid_sim/fw_mid_sim.egg-info/dependency_links.txt
+[1.245s] writing requirements to ../../../build/fw_mid_sim/fw_mid_sim.egg-info/requires.txt
+[1.245s] writing top-level names to ../../../build/fw_mid_sim/fw_mid_sim.egg-info/top_level.txt
+[1.281s] reading manifest file '../../../build/fw_mid_sim/fw_mid_sim.egg-info/SOURCES.txt'
+[1.282s] writing manifest file '../../../build/fw_mid_sim/fw_mid_sim.egg-info/SOURCES.txt'
+[1.282s] running build
+[1.282s] running build_py
+[1.282s] creating /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/build/lib/fw_mid_sim
+[1.282s] copying fw_mid_sim/__init__.py -> /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/build/lib/fw_mid_sim
+[1.283s] running install
+[1.288s] running install_lib
+[1.305s] creating /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages/fw_mid_sim
+[1.305s] copying /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/build/lib/fw_mid_sim/__init__.py -> /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages/fw_mid_sim
+[1.305s] byte-compiling /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages/fw_mid_sim/__init__.py to __init__.cpython-310.pyc
+[1.305s] running install_data
+[1.305s] creating /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/share/ament_index/resource_index/packages
+[1.306s] copying resource/fw_mid_sim -> /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/share/ament_index/resource_index/packages
+[1.306s] copying package.xml -> /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/share/fw_mid_sim
+[1.306s] running install_egg_info
+[1.325s] Copying ../../../build/fw_mid_sim/fw_mid_sim.egg-info to /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages/fw_mid_sim-0.1.0-py3.10.egg-info
+[1.325s] running install_scripts
+[1.361s] writing list of installed files to '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/install.log'
+[1.384s] Invoked command in '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/src/simcode/fw_mid_sim' returned '0': PYTHONPATH=/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/fw_mid_sim build --build-base /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/build install --record /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/install.log --install-scripts $base/lib/fw_mid_sim --single-version-externally-managed install_data

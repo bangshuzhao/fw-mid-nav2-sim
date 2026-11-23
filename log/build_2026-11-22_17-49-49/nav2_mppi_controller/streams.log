@@ -1,0 +1,139 @@
+[0.014s] Invoking command in '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/src/navcode/navigation2/nav2_mppi_controller -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller
+[0.107s] -- The C compiler identification is GNU 11.4.0
+[0.200s] -- The CXX compiler identification is GNU 11.4.0
+[0.212s] -- Detecting C compiler ABI info
+[0.301s] -- Detecting C compiler ABI info - done
+[0.310s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.310s] -- Detecting C compile features
+[0.311s] -- Detecting C compile features - done
+[0.316s] -- Detecting CXX compiler ABI info
+[0.426s] -- Detecting CXX compiler ABI info - done
+[0.434s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.435s] -- Detecting CXX compile features
+[0.435s] -- Detecting CXX compile features - done
+[0.441s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.890s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.974s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[1.023s] -- Performing Test arch_native_supported
+[1.121s] -- Performing Test arch_native_supported - Success
+[1.130s] -- Found rclcpp: 16.0.21 (/opt/ros/humble/share/rclcpp/cmake)
+[1.197s] -- Found rosidl_generator_c: 3.1.9 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[1.205s] -- Found rosidl_adapter: 3.1.9 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[1.217s] -- Found rosidl_generator_cpp: 3.1.9 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[1.235s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.257s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.325s] -- Found rmw_implementation_cmake: 6.1.4 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[1.329s] -- Found rmw_fastrtps_cpp: 6.2.10 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[1.457s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+[1.492s] -- Found FastRTPS: /opt/ros/humble/include  
+[1.544s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[1.558s] -- Looking for pthread.h
+[1.666s] -- Looking for pthread.h - found
+[1.667s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[1.765s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[1.767s] -- Found Threads: TRUE  
+[1.853s] -- Found nav2_common: 1.1.20 (/opt/ros/humble/share/nav2_common/cmake)
+[1.855s] -- Found pluginlib: 5.1.5 (/opt/ros/humble/share/pluginlib/cmake)
+[1.894s] -- Found tf2: 0.25.24 (/opt/ros/humble/share/tf2/cmake)
+[1.920s] -- Found visualization_msgs: 4.9.2 (/opt/ros/humble/share/visualization_msgs/cmake)
+[1.972s] -- Found nav_msgs: 4.9.2 (/opt/ros/humble/share/nav_msgs/cmake)
+[1.996s] -- Found nav2_core: 1.1.20 (/opt/ros/humble/share/nav2_core/cmake)
+[2.276s] -- Found Eigen3: TRUE (found version "3.4.0") 
+[2.277s] -- Ensuring Eigen3 include directory is part of orocos-kdl CMake target
+[2.377s] -- Found tf2_eigen: 0.25.24 (/opt/ros/humble/share/tf2_eigen/cmake)
+[2.381s] -- Performing Test COMPILER_SUPPORTS_AVX512
+[2.477s] -- Performing Test COMPILER_SUPPORTS_AVX512 - Success
+[2.478s] -- Performing Test COMPILER_SUPPORTS_SSE4
+[2.575s] -- Performing Test COMPILER_SUPPORTS_SSE4 - Success
+[2.576s] -- Performing Test COMPILER_SUPPORTS_AVX2
+[2.675s] -- Performing Test COMPILER_SUPPORTS_AVX2 - Success
+[2.676s] -- Performing Test COMPILER_SUPPORTS_FMA
+[2.768s] -- Performing Test COMPILER_SUPPORTS_FMA - Success
+[3.026s] -- Configuring done
+[3.156s] -- Generating done
+[3.169s] -- Build files have been written to: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller
+[3.182s] Invoked command in '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/src/navcode/navigation2/nav2_mppi_controller -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller
+[3.182s] Invoking command in '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller -- -j24 -l24
+[3.255s] [  9%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/path_align_critic.cpp.o
+[3.256s] [  9%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/obstacles_critic.cpp.o
+[3.256s] [ 19%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/goal_angle_critic.cpp.o
+[3.256s] [ 19%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/path_align_legacy_critic.cpp.o
+[3.257s] [ 23%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/path_angle_critic.cpp.o
+[3.257s] [ 28%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/velocity_deadband_critic.cpp.o
+[3.257s] [ 33%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/twirling_critic.cpp.o
+[3.258s] [ 38%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/cost_critic.cpp.o
+[3.259s] [ 42%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/goal_critic.cpp.o
+[3.260s] [ 47%] Building CXX object CMakeFiles/mppi_controller.dir/src/controller.cpp.o
+[3.261s] [ 52%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/path_follow_critic.cpp.o
+[3.261s] [ 57%] Building CXX object CMakeFiles/mppi_controller.dir/src/optimizer.cpp.o
+[3.261s] [ 61%] Building CXX object CMakeFiles/mppi_controller.dir/src/trajectory_visualizer.cpp.o
+[3.261s] [ 66%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/prefer_forward_critic.cpp.o
+[3.261s] [ 71%] Building CXX object CMakeFiles/mppi_controller.dir/src/path_handler.cpp.o
+[3.261s] [ 76%] Building CXX object CMakeFiles/mppi_critics.dir/src/critics/constraint_critic.cpp.o
+[3.262s] [ 80%] Building CXX object CMakeFiles/mppi_controller.dir/src/parameters_handler.cpp.o
+[3.262s] [ 85%] Building CXX object CMakeFiles/mppi_controller.dir/src/noise_generator.cpp.o
+[3.264s] [ 90%] Building CXX object CMakeFiles/mppi_controller.dir/src/critic_manager.cpp.o
+[21.102s] [ 95%] Linking CXX shared library libmppi_critics.so
+[21.511s] [ 95%] Built target mppi_critics
+[27.187s] [100%] Linking CXX shared library libmppi_controller.so
+[27.572s] [100%] Built target mppi_controller
+[27.589s] Invoked command in '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller -- -j24 -l24
+[27.600s] Invoking command in '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller
+[27.606s] -- Install configuration: "Release"
+[27.606s] -- Execute custom install script
+[27.607s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/lib/libmppi_controller.so
+[27.617s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/lib/libmppi_critics.so
+[27.626s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/controller.hpp
+[27.635s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critic_data.hpp
+[27.645s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critic_function.hpp
+[27.653s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critic_manager.hpp
+[27.664s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/constraint_critic.hpp
+[27.673s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/cost_critic.hpp
+[27.682s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/goal_angle_critic.hpp
+[27.691s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/goal_critic.hpp
+[27.699s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/obstacles_critic.hpp
+[27.708s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/path_align_critic.hpp
+[27.717s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/path_align_legacy_critic.hpp
+[27.726s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/path_angle_critic.hpp
+[27.739s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/path_follow_critic.hpp
+[27.749s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/prefer_forward_critic.hpp
+[27.761s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/twirling_critic.hpp
+[27.770s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/critics/velocity_deadband_critic.hpp
+[27.779s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/models/constraints.hpp
+[27.791s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/models/control_sequence.hpp
+[27.802s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/models/optimizer_settings.hpp
+[27.813s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/models/path.hpp
+[27.821s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/models/state.hpp
+[27.835s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/models/trajectories.hpp
+[27.845s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/motion_models.hpp
+[27.858s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/optimizer.hpp
+[27.867s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/tools/noise_generator.hpp
+[27.876s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/tools/parameters_handler.hpp
+[27.884s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/tools/path_handler.hpp
+[27.893s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/tools/trajectory_visualizer.hpp
+[27.905s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/include//nav2_mppi_controller/tools/utils.hpp
+[27.916s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/environment/library_path.sh
+[27.931s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/environment/library_path.dsv
+[27.940s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller//mppic.xml
+[27.953s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller//critics.xml
+[27.962s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/ament_index/resource_index/package_run_dependencies/nav2_mppi_controller
+[27.975s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/ament_index/resource_index/parent_prefix_path/nav2_mppi_controller
+[27.985s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/environment/ament_prefix_path.sh
+[27.999s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/environment/ament_prefix_path.dsv
+[28.008s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/environment/path.sh
+[28.017s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/environment/path.dsv
+[28.031s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/local_setup.bash
+[28.040s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/local_setup.sh
+[28.054s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/local_setup.zsh
+[28.068s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/local_setup.dsv
+[28.079s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/package.dsv
+[28.093s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/ament_index/resource_index/packages/nav2_mppi_controller
+[28.103s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/ament_index/resource_index/nav2_core__pluginlib__plugin/nav2_mppi_controller
+[28.113s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/ament_index/resource_index/nav2_mppi_controller__pluginlib__plugin/nav2_mppi_controller
+[28.128s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/cmake/ament_cmake_export_libraries-extras.cmake
+[28.142s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/cmake/ament_cmake_export_dependencies-extras.cmake
+[28.151s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/cmake/ament_cmake_export_include_directories-extras.cmake
+[28.161s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/cmake/nav2_mppi_controllerConfig.cmake
+[28.174s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/cmake/nav2_mppi_controllerConfig-version.cmake
+[28.182s] -- Symlinking: /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/nav2_mppi_controller/share/nav2_mppi_controller/package.xml
+[28.198s] Invoked command in '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller

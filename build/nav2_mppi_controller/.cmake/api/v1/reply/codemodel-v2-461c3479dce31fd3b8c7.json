@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-090a69c1f1da74341351.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "nav2_mppi_controller",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "mppi_controller::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-mppi_controller-Release-9d698a47012f6f2e3e1c.json",
+					"name" : "mppi_controller",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "mppi_critics::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-mppi_critics-Release-82c78d71d723e8876c61.json",
+					"name" : "mppi_critics",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "nav2_mppi_controller_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-nav2_mppi_controller_uninstall-Release-8bf45e3c5387ef33b1d4.json",
+					"name" : "nav2_mppi_controller_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-Release-caa2850452ba034afaa0.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/nav2_mppi_controller",
+		"source" : "/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/src/navcode/navigation2/nav2_mppi_controller"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

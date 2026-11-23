@@ -1,0 +1,19 @@
+[0.114s] colcon DEBUG Command line arguments: ['/usr/bin/colcon', 'list', '--base-paths', 'src/simcode/fw_mid_sim']
+[0.114s] colcon DEBUG Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='list', build_base='build', ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['src/simcode/fw_mid_sim'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], topological_order=False, names_only=False, paths_only=False, topological_graph=False, topological_graph_dot=False, topological_graph_density=False, topological_graph_legend=False, topological_graph_dot_cluster=False, topological_graph_dot_include_skipped=False, verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0x7c1037332aa0>, verb_extension=<colcon_package_information.verb.list.ListVerb object at 0x7c1037331d50>, main=<bound method ListVerb.main of <colcon_package_information.verb.list.ListVerb object at 0x7c1037331d50>>)
+[0.161s] colcon.colcon_core.package_discovery Level 1 discover_packages(colcon_meta) check parameters
+[0.161s] colcon.colcon_core.package_discovery Level 1 discover_packages(recursive) check parameters
+[0.161s] colcon.colcon_core.package_discovery Level 1 discover_packages(ignore) check parameters
+[0.161s] colcon.colcon_core.package_discovery Level 1 discover_packages(path) check parameters
+[0.161s] colcon.colcon_core.package_discovery Level 1 discover_packages(recursive) discover
+[0.161s] colcon.colcon_core.package_discovery INFO Crawling recursively for packages in '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/src/simcode/fw_mid_sim'
+[0.162s] colcon.colcon_core.package_identification Level 1 _identify(src/simcode/fw_mid_sim) by extensions ['ignore', 'ignore_ament_install']
+[0.162s] colcon.colcon_core.package_identification Level 1 _identify(src/simcode/fw_mid_sim) by extension 'ignore'
+[0.162s] colcon.colcon_core.package_identification Level 1 _identify(src/simcode/fw_mid_sim) by extension 'ignore_ament_install'
+[0.162s] colcon.colcon_core.package_identification Level 1 _identify(src/simcode/fw_mid_sim) by extensions ['colcon_pkg']
+[0.162s] colcon.colcon_core.package_identification Level 1 _identify(src/simcode/fw_mid_sim) by extension 'colcon_pkg'
+[0.162s] colcon.colcon_core.package_identification Level 1 _identify(src/simcode/fw_mid_sim) by extensions ['colcon_meta']
+[0.162s] colcon.colcon_core.package_identification Level 1 _identify(src/simcode/fw_mid_sim) by extension 'colcon_meta'
+[0.162s] colcon.colcon_core.package_identification Level 1 _identify(src/simcode/fw_mid_sim) by extensions ['ros']
+[0.162s] colcon.colcon_core.package_identification Level 1 _identify(src/simcode/fw_mid_sim) by extension 'ros'
+[0.181s] colcon.colcon_core.package_identification DEBUG Package 'src/simcode/fw_mid_sim' with type 'ros.ament_python' and name 'fw_mid_sim'
+[0.181s] colcon.colcon_core.package_discovery Level 1 discover_packages(recursive) using defaults

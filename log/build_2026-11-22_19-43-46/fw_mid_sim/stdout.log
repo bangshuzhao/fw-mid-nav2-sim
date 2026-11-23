@@ -1,0 +1,24 @@
+running egg_info
+writing ../../../build/fw_mid_sim/fw_mid_sim.egg-info/PKG-INFO
+writing dependency_links to ../../../build/fw_mid_sim/fw_mid_sim.egg-info/dependency_links.txt
+writing requirements to ../../../build/fw_mid_sim/fw_mid_sim.egg-info/requires.txt
+writing top-level names to ../../../build/fw_mid_sim/fw_mid_sim.egg-info/top_level.txt
+reading manifest file '../../../build/fw_mid_sim/fw_mid_sim.egg-info/SOURCES.txt'
+writing manifest file '../../../build/fw_mid_sim/fw_mid_sim.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/build/lib/fw_mid_sim
+copying fw_mid_sim/__init__.py -> /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/build/lib/fw_mid_sim
+running install
+running install_lib
+creating /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages/fw_mid_sim
+copying /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/build/lib/fw_mid_sim/__init__.py -> /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages/fw_mid_sim
+byte-compiling /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages/fw_mid_sim/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/share/ament_index/resource_index/packages
+copying resource/fw_mid_sim -> /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/share/ament_index/resource_index/packages
+copying package.xml -> /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/share/fw_mid_sim
+running install_egg_info
+Copying ../../../build/fw_mid_sim/fw_mid_sim.egg-info to /home/ubuntu/share/yuhesen/fw-mid-nav2-sim/install/fw_mid_sim/lib/python3.10/site-packages/fw_mid_sim-0.1.0-py3.10.egg-info
+running install_scripts
+writing list of installed files to '/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/build/fw_mid_sim/install.log'

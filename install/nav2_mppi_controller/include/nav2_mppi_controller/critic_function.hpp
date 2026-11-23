@@ -1,0 +1,1 @@
+/home/ubuntu/share/yuhesen/fw-mid-nav2-sim/src/navcode/navigation2/nav2_mppi_controller/include/nav2_mppi_controller/critic_function.hpp
