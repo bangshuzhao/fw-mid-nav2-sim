@@ -1,0 +1,3 @@
+[submodule "navigation2"]
+	path = src/navcode/navigation2
+	url = https://github.com/ros-navigation/navigation2.git
