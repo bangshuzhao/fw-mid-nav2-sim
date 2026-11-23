@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<sdf version="1.8">
+  <world name="fw_mid_workshop">
+    <physics name="physics" type="ignored">
+      <max_step_size>0.002</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="ignition-gazebo-physics-system"
+            name="ignition::gazebo::systems::Physics"/>
+    <plugin filename="ignition-gazebo-user-commands-system"
+            name="ignition::gazebo::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system"
+            name="ignition::gazebo::systems::SceneBroadcaster"/>
+
+    <light name="sun" type="directional">
+      <direction>-0.4 0.3 -0.87</direction>
+    </light>
+
+    <model name="floor">
+      <static>true</static>
+      <pose>0 0 -0.05 0 0 0</pose>
+      <link name="ground">
+        <collision name="collision">
+          <geometry><box><size>12 10 0.10</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>12 10 0.10</size></box></geometry>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>
