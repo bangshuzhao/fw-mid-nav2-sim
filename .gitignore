@@ -9,6 +9,9 @@
 # Local VS Code settings
 /.vscode/
 
+# Local development journal
+/devlog.md
+
 # Python bytecode
 __pycache__/
 *.pyc
