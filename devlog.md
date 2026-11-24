@@ -342,3 +342,80 @@ ros2 service call /slam_toolbox/serialize_map slam_toolbox/srv/SerializePoseGrap
 | 位姿图 | `serialize_map` 返回 `result: 0`，保存了 `workshop_graph.posegraph` 和 `workshop_graph.data`，可以用于后续继续建图。 |
 
 **2026 年 11 月 24 日**
+
+## 第 6 步 · 把 C32 三维点云接进局部代价地图
+
+第五步把 `/scan` 交给 SLAM Toolbox 生成静态地图。这一步把 `/lidar/points` 直接交给 Nav2 的体素层，让局部代价图能按障碍高度筛点。点云先变换到 `odom`，再标记三维体素。被占据的体素列在 XY 平面标记障碍，膨胀层再给周围的栅格增加代价。
+
+### 6A · 从点云读到二维代价
+
+| 文件与函数 | 我在源码里看什么 |
+|---|---|
+| [`observation_buffer.cpp` 的 `ObservationBuffer::bufferCloud()`](src/navcode/navigation2/nav2_costmap_2d/src/observation_buffer.cpp#L83) | 按点云时间戳查 TF，变换到代价图参考系后，按 Z 高度筛点。 |
+| [`voxel_layer.cpp` 的 `VoxelLayer::updateBounds()`](src/navcode/navigation2/nav2_costmap_2d/plugins/voxel_layer.cpp#L144) | `worldToMap3D()` 把坐标换成体素索引，`markVoxelInMap()` 决定该列是否在二维图上标为致命障碍。 |
+| [`layered_costmap.cpp` 的 `LayeredCostmap::updateMap()`](src/navcode/navigation2/nav2_costmap_2d/src/layered_costmap.cpp#L132) 和 [`InflationLayer::updateCosts()`](src/navcode/navigation2/nav2_costmap_2d/plugins/inflation_layer.cpp#L190) | 各层先申报需要更新的范围，再合并代价。最后按障碍距离计算膨胀。 |
+
+### 6B · 写滚动体素层并注册插件
+
+在只标记、关闭射线清除的对照实验里，[`ObservationBuffer::purgeStaleObservations()`](src/navcode/navigation2/nav2_costmap_2d/src/observation_buffer.cpp#L187) 会丢弃旧观测，已标入栅格的障碍仍会保留。我在 [`rolling_voxel_layer.cpp` 的 `RollingVoxelLayer::updateBounds()`](src/navcode/fw_mid_voxel_layer/src/rolling_voxel_layer.cpp#L11) 先调用 `resetMaps()`，再交给原版 `VoxelLayer::updateBounds()` 用有效观测重建。最后用两次 `touch()` 把整个窗口纳入主图更新，让旧障碍位置的代价和膨胀也重新计算。
+
+[`costmap_plugins.xml`](src/navcode/fw_mid_voxel_layer/costmap_plugins.xml) 把 YAML 中的 `fw_mid_voxel_layer/RollingVoxelLayer` 映射到 C++ 类和共享库。[`CMakeLists.txt`](src/navcode/fw_mid_voxel_layer/CMakeLists.txt) 构建并注册该库，[`package.xml`](src/navcode/fw_mid_voxel_layer/package.xml) 声明构建依赖。编译后检查过共享库，它链接的是工作区 `install/nav2_costmap_2d` 里的 Nav2 库。
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/local_setup.bash
+colcon build --symlink-install --base-paths src/navcode/fw_mid_voxel_layer \
+  --packages-select fw_mid_voxel_layer
+source install/local_setup.bash
+ros2 pkg prefix fw_mid_voxel_layer
+```
+
+### 6C · 用合成点云验证高度和过期
+
+实验用 [`nav2_voxel.yaml`](src/simcode/fw_mid_sim/config/nav2_voxel.yaml) 的临时副本。把 `use_sim_time` 改为 `false`，代价图参考系设为 `lesson6_odom`，车体参考系设为 `lesson6_base`，观测话题改为 `/student_cloud`。用 `static_transform_publisher` 发布 `lesson6_odom → lesson6_base` 的单位变换。测试点放在 `lesson6_base` 中，按系统时间打戳，以约 20 Hz 发布。
+
+| 检查项 | 实测结果 |
+|---|---|
+| 体素层数 | 16 层，每层 0.10 m。 |
+| 低点 `(1.025, 0.025, 0.50)` | 障碍格代价为 100。 |
+| 高点 `(2.025, 0.025, 1.60)` | 高于 1.02 m 的过滤上限，所在格代价为 0。 |
+| 低点旁的 `(1.425, 0.025)` | 膨胀代价为 69。 |
+| 停发点云 1 秒后 | 滚动体素层的低点代价回到 0；原版对照仍为 100。 |
+
+### 6D · 接回 Gazebo C32 并检查发布
+
+仓库中的 `nav2_voxel.yaml` 已是仿真用配置。`use_sim_time: true` 使用 `/clock`，局部图用 `odom`，车体参考点为 `base_footprint`，观测源为 `/lidar/points`。沿用第四步的 EKF 和传感器配置。从项目根目录开多个终端，每个终端先加载 Humble 和工作区安装环境，并保持默认 ROS 域。
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/local_setup.bash
+export ROS_LOCALHOST_ONLY=1
+```
+
+终端 A 启动小车，终端 B 启动独立代价图。
+
+```bash
+ros2 launch fw_mid_sim sim.launch.py gui:=false
+```
+
+```bash
+costmap_prefix=$(ros2 pkg prefix nav2_costmap_2d)
+LD_PRELOAD="$costmap_prefix/lib/liblayers.so" \
+  "$costmap_prefix/lib/nav2_costmap_2d/nav2_costmap_2d" \
+  --ros-args --params-file "$PWD/src/simcode/fw_mid_sim/config/nav2_voxel.yaml"
+```
+
+在终端 C 激活并检查。RViz 的 Fixed Frame 可选 `odom`，用 PointCloud2 显示 `/lidar/points`，用 Map 显示 `/costmap/costmap`。
+
+```bash
+ros2 lifecycle set /costmap/costmap configure
+ros2 lifecycle set /costmap/costmap activate
+ros2 topic echo /costmap/voxel_grid nav2_msgs/msg/VoxelGrid --once --field size_z
+ros2 topic echo /costmap/costmap --once --field info
+```
+
+工坊实测收到 `lidar_link` 下的 C32 点云，代价图发布 16 层体素以及 `odom` 下的二维栅格，抽查一帧有 129 个致命障碍格。实验结束后依次执行 `deactivate`、`cleanup`、`shutdown`，再退出独立代价图，进程返回 `0`。独立进程启动命令中的 `LD_PRELOAD` 让原版层库在插件卸载期间保持加载。
+
+第六步通过了高度过滤、膨胀、过期清除和 C32 接入验收。点云过期后的 `0` 只表示本层已没有有效障碍标记。行人避让和雷达断流停车仍要在接入控制器后验证。
+
+**2026 年 11 月 24 日**
