@@ -1,0 +1,5 @@
+<library path="fw_mid_mppi">
+  <class
+    type="mppi::critics::PathDirectionCritic"
+    base_class_type="mppi::critics::CriticFunction"/>
+</library>

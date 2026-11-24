@@ -10,6 +10,8 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64MultiArray
 from tf2_ros import TransformBroadcaster
+from action_msgs.msg import GoalStatus, GoalStatusArray
+from rclpy.qos import DurabilityPolicy, QoSProfile
 WHEEL_POSITIONS = (
     (0.20, 0.21),    # FL
     (0.20, -0.21),   # FR
@@ -111,8 +113,41 @@ class BaseControl(Node):
         self.create_subscription(Twist, 'cmd_vel', self.receive_cmd, 10)
         # 订阅 /joint_states，回调 receive_feedback：读取Gazebo关节反馈
         self.create_subscription(JointState, 'joint_states', self.receive_feedback, 10)
+
         # ========== 定时器：控制主循环 50Hz（0.02s一次） ==========
+        self.active_goals = set()
+        self.center_requested = False
+        self.centered = False
+        self.stopped_since = None
+        self.feedback_time = float('-inf')
+        self.wheel_speed = 0.0
+
+        status_qos = QoSProfile(depth=10, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        self.create_subscription(
+            GoalStatusArray, '/navigate_to_pose/_action/status',
+            self.receive_navigation_status, status_qos)
         self.create_timer(0.02, self.control)
+    def receive_navigation_status(self, msg):
+        statuses = {
+            bytes(entry.goal_info.goal_id.uuid): entry.status
+            for entry in msg.status_list
+        }
+        active = {goal for goal, status in statuses.items() if status in (
+            GoalStatus.STATUS_ACCEPTED,
+            GoalStatus.STATUS_EXECUTING,
+            GoalStatus.STATUS_CANCELING,
+        )}
+
+        if active:
+            self.center_requested = False
+            self.centered = False
+            self.stopped_since = None
+        elif any(statuses.get(goal) == GoalStatus.STATUS_SUCCEEDED
+                for goal in self.active_goals):
+            self.center_requested = True
+            self.stopped_since = None
+
+        self.active_goals = active
 
     def receive_cmd(self, msg):
         self.vx = msg.linear.x
@@ -124,6 +159,41 @@ class BaseControl(Node):
         self.cmd_time = monotonic()
 
     def control(self):
+        now = monotonic()
+        command_fresh = now - self.cmd_time <= 0.30
+        moving = command_fresh and (abs(self.vx) > 1e-5 or abs(self.wz) > 1e-5)
+
+        if moving:
+            self.centered = False
+            self.stopped_since = None
+
+        if not moving and (self.center_requested or self.centered):
+            self.drive.publish(Float64MultiArray(data=[0.0] * 4))
+            if self.centered:
+                return
+
+            feedback_fresh = now - self.feedback_time <= 0.30
+            if not feedback_fresh or self.wheel_speed > 0.025:
+                self.stopped_since = None
+                return
+
+            sim_now = self.get_clock().now().nanoseconds
+            if self.stopped_since is None:
+                self.stopped_since = sim_now
+            if sim_now - self.stopped_since < 200_000_000:
+                return
+
+            # 底盘每 0.02 s 执行一次，按实际关节角逐步收舵。
+            targets = [
+                angle - max(-0.02, min(0.02, angle))
+                for angle in self.angles
+            ]
+            self.steering.publish(Float64MultiArray(data=targets))
+            if max(abs(angle) for angle in self.angles) < 0.015:
+                self.center_requested = False
+                self.centered = True
+                self.get_logger().info('Navigation complete: all four steering joints centered.')
+            return
         # 指令中断就停止驱动，转向保持当前目标 先给方向，再按实际转向误差放开轮速。
         if self.angles is None or monotonic() - self.cmd_time > 0.30:
             # 驱动轮全部置0；转向不主动动（保持当前角度）
@@ -157,6 +227,8 @@ class BaseControl(Node):
         self.angles = [msg.position[indices[f'{w}_steer_joint']] for w in wheels]
         # 依次取出四个驱动关节的速度 → self.rates（给control下一轮用）
         rates = [msg.velocity[indices[f'{w}_drive_joint']] for w in wheels]
+        self.wheel_speed = max(abs(rate) for rate in rates) * self.radius
+        self.feedback_time = monotonic()
         # 调用逆运动学，从轮子真实状态，反推车体真实 vx, vy, wz
         vx, vy, wz = body_velocity(self.angles, rates, self.positions, self.radius)
 

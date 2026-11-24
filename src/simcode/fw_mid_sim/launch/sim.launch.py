@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import xacro
@@ -21,10 +22,15 @@ def make_sim(context):
     # 3. .toxml() 转为纯字符串，就是完整URDF，交给robot_state_publisher
     xml = xacro.process_file(str(share / 'urdf/fw_mid.urdf.xacro')).toxml()
     sim_time = {'use_sim_time': True}
+    narrow = LaunchConfiguration('scene').perform(context) == 'narrow'
+    scene = 'narrow_office' if narrow else 'workshop'
+    plugin_paths = [str(Path(get_package_prefix('gz_ros2_control')) / 'lib')]
+    if narrow:
+        plugin_paths.append(str(Path(get_package_prefix('fw_mid_traffic')) / 'lib'))
 
     gazebo_cmd = [
         'ign', 'gazebo', '--force-version', '6', '-r',
-        str(share / 'worlds/workshop.sdf'),
+        str(share / 'worlds' / f'{scene}.sdf'),
     ]
     if LaunchConfiguration('gui').perform(context) == 'false':
         gazebo_cmd.append('-s')
@@ -33,7 +39,12 @@ def make_sim(context):
         cmd=gazebo_cmd,
         output='screen',
         additional_env={
-            'IGN_GAZEBO_SYSTEM_PLUGIN_PATH': get_package_prefix('gz_ros2_control') + '/lib',
+            'IGN_GAZEBO_SYSTEM_PLUGIN_PATH': os.pathsep.join(filter(None, [
+                *plugin_paths, os.environ.get('IGN_GAZEBO_SYSTEM_PLUGIN_PATH', ''),
+            ])),
+            'IGN_GAZEBO_RESOURCE_PATH': os.pathsep.join(filter(None, [
+                str(share.parent), os.environ.get('IGN_GAZEBO_RESOURCE_PATH', ''),
+            ])),
         },
     )
     # 启动 robot_state_publisher（RSP）节点
@@ -54,8 +65,8 @@ def make_sim(context):
         package='ros_gz_sim',
         executable='create',
         output='screen',
-        arguments=['-world', 'fw_mid_workshop', '-name', 'fw_mid',
-                   '-topic', '/robot_description', '-z', '0.025'],
+        arguments=['-world', f'fw_mid_{scene}', '-name', 'fw_mid',
+                   '-topic', '/robot_description', '-z', '0.025','-x', LaunchConfiguration('spawn_x'),],
     )
     # 启动controller_manager的spawner，加载ros2_control控制器
     controllers = Node(
@@ -71,7 +82,10 @@ def make_sim(context):
         executable='base_control',
         output='screen',
         parameters=[sim_time, {'publish_odom_tf': False}],
-        remappings=[('odom', '/wheel/odom')],
+        remappings=[
+            ('odom', '/wheel/odom'),
+            ('cmd_vel', LaunchConfiguration('cmd_vel_topic')),
+        ],
     )
     # 闭包函数：生成一个回调函数
     def after_success(next_action):
@@ -101,7 +115,7 @@ def make_sim(context):
         output='screen',
     )
 
-    return [
+    actions = [
         gazebo, robot, clock,h30,projector,ekf,# 这三个并行立刻启动：Gazebo、RSP、时钟桥
         # 事件1：监听spawn进程退出，spawn成功 → 启动controllers控制器加载器
         RegisterEventHandler(OnProcessExit(
@@ -111,6 +125,13 @@ def make_sim(context):
             target_action=controllers, on_exit=after_success(base))),
         spawn,# 同时启动spawn，生成小车模型
     ]
+    if narrow:
+        actions.append(Node(
+            package='ros_gz_bridge', executable='parameter_bridge',
+            name='traffic_bridge', output='screen',
+            parameters=[{'config_file': str(share / 'config/traffic_bridge.yaml')}],
+        ))
+    return actions
 
 # ROS2 launch的入口函数，launch框架会自动调用这个函数
 def generate_launch_description():
@@ -118,5 +139,8 @@ def generate_launch_description():
         # 声明启动参数gui，默认true，只能填true/false
         # 启动时可以覆盖：ros2 launch fw_mid_sim sim.launch.py gui:=false
         DeclareLaunchArgument('gui', default_value='true', choices=['true', 'false']),
+        DeclareLaunchArgument('spawn_x', default_value='0.0'),
+        DeclareLaunchArgument('cmd_vel_topic', default_value='/cmd_vel'),
+        DeclareLaunchArgument('scene', default_value='workshop', choices=['workshop', 'narrow']),
         OpaqueFunction(function=make_sim),
     ])

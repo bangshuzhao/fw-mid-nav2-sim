@@ -1,0 +1,6 @@
+<library path="fw_mid_mppi">
+  <class
+    name="fw_mid_mppi/CuspMPPI"
+    type="fw_mid_mppi::CuspMPPI"
+    base_class_type="nav2_core::Controller"/>
+</library>

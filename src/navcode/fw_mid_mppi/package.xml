@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>fw_mid_mppi</name>
+  <version>0.1.0</version>
+  <description>Nav2 Humble MPPI path handover for FW-mid.</description>
+  <maintainer email="maintainer@example.com">FW-mid simulation workspace</maintainer>
+  <license>LicenseRef-LocalProject</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>nav2_core</depend>
+  <depend>nav2_costmap_2d</depend>
+  <depend>nav2_mppi_controller</depend>
+  <depend>nav2_util</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>xtensor</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
