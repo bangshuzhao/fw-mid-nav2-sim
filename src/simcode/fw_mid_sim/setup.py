@@ -11,11 +11,12 @@ setup(
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/urdf', ['urdf/fw_mid.urdf.xacro']),
-        ('share/' + package_name + '/config',['config/geometry.yaml', 'config/controllers.yaml']),
+        ('share/' + package_name + '/config', [
+            'config/geometry.yaml', 'config/controllers.yaml', 'config/sensors.yaml',
+            'config/bridge.yaml', 'config/estimation.yaml', 'config/slam.yaml',
+        ]),
         ('share/' + package_name + '/launch', ['launch/sim.launch.py']),
         ('share/' + package_name + '/worlds', ['worlds/workshop.sdf']),
-        ('share/' + package_name + '/config', ['config/geometry.yaml','config/controllers.yaml','config/sensors.yaml','config/bridge.yaml','config/estimation.yaml',
-        ]),
     ],
     install_requires=['setuptools'],
         entry_points={

@@ -77,7 +77,7 @@
 ```bash
 source /opt/ros/humble/setup.bash
 source install/local_setup.bash
-export ROS_DOMAIN_ID=83 ROS_LOCALHOST_ONLY=1
+export ROS_LOCALHOST_ONLY=1
 export IGN_IP=127.0.0.1 IGN_PARTITION=fw_lesson_3c GZ_PARTITION=fw_lesson_3c
 ros2 launch fw_mid_sim sim.launch.py gui:=true
 ```
@@ -87,7 +87,7 @@ ros2 launch fw_mid_sim sim.launch.py gui:=true
 ```bash
 source /opt/ros/humble/setup.bash
 source install/local_setup.bash
-export ROS_DOMAIN_ID=83 ROS_LOCALHOST_ONLY=1
+export ROS_LOCALHOST_ONLY=1
 ros2 control list_controllers
 ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist \
   '{linear: {x: 0.20}, angular: {z: 0.30}}'
@@ -97,7 +97,7 @@ ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist \
 
 ```bash
 source /opt/ros/humble/setup.bash
-export ROS_DOMAIN_ID=83 ROS_LOCALHOST_ONLY=1
+export ROS_LOCALHOST_ONLY=1
 ros2 topic echo /joint_states sensor_msgs/msg/JointState --once
 ros2 topic echo /odom nav_msgs/msg/Odometry --once
 ```
@@ -141,7 +141,7 @@ ros2 topic echo /odom nav_msgs/msg/Odometry --once
 ```bash
 source /opt/ros/humble/setup.bash
 source install/local_setup.bash
-export ROS_DOMAIN_ID=88 ROS_LOCALHOST_ONLY=1
+export ROS_LOCALHOST_ONLY=1
 export IGN_IP=127.0.0.1 IGN_PARTITION=fw_lesson_4 GZ_PARTITION=fw_lesson_4
 ros2 launch fw_mid_sim sim.launch.py gui:=false
 ```
@@ -150,7 +150,7 @@ ros2 launch fw_mid_sim sim.launch.py gui:=false
 
 ```bash
 source /opt/ros/humble/setup.bash
-export ROS_DOMAIN_ID=88 ROS_LOCALHOST_ONLY=1
+export ROS_LOCALHOST_ONLY=1
 ros2 run tf2_ros tf2_echo base_link imu_link
 ```
 
@@ -165,7 +165,7 @@ ros2 topic echo /odometry/filtered --field twist.twist
 
 ```bash
 source /opt/ros/humble/setup.bash
-export ROS_DOMAIN_ID=88 ROS_LOCALHOST_ONLY=1
+export ROS_LOCALHOST_ONLY=1
 ros2 topic pub -w 1 -r 20 -t 60 -p 20 /cmd_vel geometry_msgs/msg/Twist \
   '{linear: {x: 0.20}, angular: {z: 0.30}}'
 ```
@@ -248,5 +248,97 @@ done
 在第 3 步底盘版和当前第 4 步版各发一次 `vx=0.20 m/s`、`wz=+0.30 rad/s`。两次的三个控制器都进入 `active`，轮式里程计都测到约 `0.200 m/s`、`+0.300 rad/s`，停车后轮式速度回到零附近。检查运行中的进程，Gazebo 加载的是工作区编译的控制器插件。
 
 第 4 步同时确认桥接、点云投影和 EKF 使用工作区构建产物。`/scan` 取样一帧有 178 个有效距离，IMU 安装 TF 为单位四元数，`odom → base_footprint` 可查。左转期间取样得到 H30 `wz=+0.284 rad/s`，EKF 输出 `vx=0.203 m/s`、`wz=+0.284 rad/s`。停止仿真时两个 Python 节点仍有退出提示，Gazebo、桥接、投影和 EKF 正常退出。
+
+**2026 年 11 月 24 日**
+
+## 第 5 步 · 用 SLAM Toolbox 给 FW-mid 建图
+
+第四步用轮速和 H30 融合出 `odom → base_footprint`，同时把 C32 点云投影为 `/scan`。第五步把这两条数据交给 SLAM Toolbox，得到二维栅格 `/map` 和 `map → odom`。EKF 继续估计连续运动，SLAM 根据墙面等环境特征对齐扫描，修正地图系里的车体位姿。
+
+### 5A · 从一帧扫描追到栅格地图
+
+| 文件与函数 | 我在源码里看什么 |
+|---|---|
+| [`slam_toolbox_async.cpp` 的 `AsynchronousSlamToolbox::laserCallback()`](src/othercode/slam_toolbox/src/slam_toolbox_async.cpp#L34) | 收到扫描后，用扫描头的时间戳查里程计位姿，通过筛选才调用 `addScan()`。 |
+| [`get_pose_helper.hpp` 的 `GetPoseHelper::getOdomPose()`](src/othercode/slam_toolbox/include/slam_toolbox/get_pose_helper.hpp#L42) | 在扫描发生的时刻把 `base_footprint` 变换到 `odom`，取出 `x`、`y` 和偏航角。这里接上了第四步的融合 TF。 |
+| [`Mapper.cpp` 的 `Mapper::Process()`](src/othercode/slam_toolbox/lib/karto_sdk/src/Mapper.cpp#L2711) | 用里程计位姿作为初值，将这帧和附近扫描匹配，再为处理成功的扫描建立位姿图节点与约束。 |
+| [`slam_toolbox_common.cpp` 的 `setTransformFromPoses()`](src/othercode/slam_toolbox/src/slam_toolbox_common.cpp#L419) 和 [`updateMap()`](src/othercode/slam_toolbox/src/slam_toolbox_common.cpp#L392) | 前者用匹配后的位姿与里程计位姿算出 `map → odom`，后者从已处理的扫描生成并发布占据栅格。 |
+| [`Mapper.cpp` 的 `MapperGraph::TryCloseLoop()`](src/othercode/slam_toolbox/lib/karto_sdk/src/Mapper.cpp#L1500) | 找历史扫描候选，经过粗、细匹配后添加回环约束，再调用优化器。自动回环已开启，成功闭环还需要在能绕回起点的场景里单独验证。 |
+
+### 5B · 编译上游包，安装自己的参数
+
+建图使用 `src/othercode/slam_toolbox` 的 `2.6.10`，保存地图使用 `src/navcode/navigation2` 编译的 `nav2_map_server`。我在 [`config/slam.yaml`](src/simcode/fw_mid_sim/config/slam.yaml) 里接入 `/scan`，配置 `map`、`odom` 和 `base_footprint`。本次保留 `resolution: 0.01`，这是每个栅格的边长，实际测量精度还取决于传感器和位姿估计。配置已在 [`setup.py`](src/simcode/fw_mid_sim/setup.py#L14) 登记，构建后会安装到 `share/fw_mid_sim/config/`。
+
+从项目根目录执行。
+
+```bash
+source /opt/ros/humble/setup.bash
+CMAKE_BUILD_PARALLEL_LEVEL=4 colcon build --symlink-install \
+  --base-paths src/othercode/slam_toolbox \
+  --packages-select slam_toolbox --allow-overriding slam_toolbox \
+  --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+colcon build --symlink-install --base-paths src/simcode --packages-select fw_mid_sim
+source install/local_setup.bash
+ros2 pkg prefix slam_toolbox
+ros2 pkg prefix nav2_map_server
+```
+
+### 5C · 启动并检查地图
+
+仿真、SLAM、RViz 和检查命令都用默认 ROS 域。如果旧终端曾经设置过自定义域，重新开一个干净终端再操作。从项目根目录开多个终端，每个终端先执行以下三行。
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/local_setup.bash
+export ROS_LOCALHOST_ONLY=1
+```
+
+分别在 A、B、C 各运行一条启动命令。
+
+```bash
+ros2 launch fw_mid_sim sim.launch.py gui:=false
+```
+
+```bash
+ros2 launch slam_toolbox online_async_launch.py use_sim_time:=true \
+  slam_params_file:="$(ros2 pkg prefix --share fw_mid_sim)/config/slam.yaml"
+```
+
+```bash
+rviz2 --ros-args -p use_sim_time:=true
+```
+
+RViz 的 Fixed Frame 选 `map`，添加 Map 显示订阅 `/map`，添加 LaserScan 显示订阅 `/scan`。检查终端执行 `ros2 topic echo /map --once --field info` 和 `ros2 run tf2_ros tf2_echo map odom`。我遇到过 `tf2_echo` 刚启动时提示找不到 `map`，随后连续打印了变换。这是新启动的监听器在等待第一批 TF 消息。
+
+从工坊的默认出生点短距离直行，再沿圆弧左转。在 `map` 坐标系里观察扫描回波是否大致留在测试墙的位置。
+
+```bash
+ros2 topic pub -w 1 -r 20 -t 65 -p 20 /cmd_vel geometry_msgs/msg/Twist \
+  '{linear: {x: 0.20}}'
+ros2 topic pub -w 1 -r 20 -t 60 -p 20 /cmd_vel geometry_msgs/msg/Twist \
+  '{linear: {x: 0.20}, angular: {z: 0.30}}'
+```
+
+### 5D · 保存并回读
+
+保持仿真和 SLAM 运行，在检查终端保存栅格地图和位姿图。
+
+```bash
+mkdir -p results/step5
+ros2 run nav2_map_server map_saver_cli -t /map \
+  -f "$PWD/results/step5/workshop" --fmt pgm --mode trinary \
+  --free 0.19 --occ 0.65 --ros-args -p save_map_timeout:=5.0
+ros2 service call /slam_toolbox/serialize_map slam_toolbox/srv/SerializePoseGraph \
+  "{filename: '$PWD/results/step5/workshop_graph'}"
+```
+
+第一次回读时，Map Server 把 26,409 个未知格读成了空闲格。对照 Nav2 [`map_io.cpp` 的保存分支](src/navcode/navigation2/nav2_map_server/src/map_io.cpp#L491) 和[读取分支](src/navcode/navigation2/nav2_map_server/src/map_io.cpp#L253)，未知格在 PGM 里是灰度 205，对应占用值 `1 - 205/255 ≈ 0.196`。默认 `free_thresh: 0.25` 会将它归为空闲。本次保存改用 `--free 0.19`，让灰色像素回读时保留为未知格。
+
+| 验收项 | 实测结果 |
+|---|---|
+| 源码版节点 | `slam_toolbox` 和 `nav2_map_server` 均指向本工作区各自的 `install/`。 |
+| 建图链路 | 收到 `lidar_link` 下的 `/scan`、`/map` 和 `map → odom`，RViz 已订阅地图。 |
+| 栅格地图 | [`workshop.yaml`](results/step5/workshop.yaml) 和 [`workshop.pgm`](results/step5/workshop.pgm) 为 `242 × 302` 格，`0.01 m/格`。用独立的 Map Server 回读，逐格核对通过。空闲 45,992 格、占用 683 格、未知 26,409 格。 |
+| 位姿图 | `serialize_map` 返回 `result: 0`，保存了 `workshop_graph.posegraph` 和 `workshop_graph.data`，可以用于后续继续建图。 |
 
 **2026 年 11 月 24 日**

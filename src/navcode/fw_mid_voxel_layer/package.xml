@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>fw_mid_voxel_layer</name>
+  <version>0.1.0</version>
+  <description>Rolling voxel costmap layer for FW-mid.</description>
+  <maintainer email="maintainer@example.com">FW-mid simulation workspace</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>nav2_costmap_2d</depend>
+  <depend>pluginlib</depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

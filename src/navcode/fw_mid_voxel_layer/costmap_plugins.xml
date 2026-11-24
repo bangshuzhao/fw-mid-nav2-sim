@@ -1,0 +1,6 @@
+<library path="fw_mid_rolling_voxel_layer">
+  <class
+    name="fw_mid_voxel_layer/RollingVoxelLayer"
+    type="fw_mid::RollingVoxelLayer"
+    base_class_type="nav2_costmap_2d::Layer"/>
+</library>

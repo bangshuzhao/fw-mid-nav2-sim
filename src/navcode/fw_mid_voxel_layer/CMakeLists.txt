@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 3.8)
+project(fw_mid_voxel_layer)
+
+find_package(ament_cmake REQUIRED)
+find_package(nav2_costmap_2d REQUIRED)
+find_package(pluginlib REQUIRED)
+
+add_library(fw_mid_rolling_voxel_layer SHARED src/rolling_voxel_layer.cpp)
+target_compile_features(fw_mid_rolling_voxel_layer PRIVATE cxx_std_17)
+ament_target_dependencies(fw_mid_rolling_voxel_layer nav2_costmap_2d pluginlib)
+pluginlib_export_plugin_description_file(nav2_costmap_2d costmap_plugins.xml)
+install(TARGETS fw_mid_rolling_voxel_layer LIBRARY DESTINATION lib)
+
+ament_package()
