@@ -46,8 +46,9 @@ def make_sim(context):
     clock = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
+        parameters=[{'config_file': str(share / 'config/bridge.yaml')}],
     )
+
     # 启动ros_gz_sim的create节点：把机器人模型spawn（生成）进Gazebo世界
     spawn = Node(
         package='ros_gz_sim',
@@ -69,14 +70,39 @@ def make_sim(context):
         package='fw_mid_sim',
         executable='base_control',
         output='screen',
-        parameters=[sim_time],
+        parameters=[sim_time, {'publish_odom_tf': False}],
+        remappings=[('odom', '/wheel/odom')],
     )
     # 闭包函数：生成一个回调函数
     def after_success(next_action):
         return lambda event, context: [next_action] if event.returncode == 0 else []
     # 返回本launch所有动作列表
+    estimation = str(share / 'config/estimation.yaml')
+
+    h30 = Node(
+        package='fw_mid_sim',
+        executable='h30_sensor',
+        parameters=[sim_time],
+        output='screen',
+    )
+    projector = Node(
+        package='pointcloud_to_laserscan',
+        executable='pointcloud_to_laserscan_node',
+        name='pointcloud_to_laserscan',
+        parameters=[estimation],
+        remappings=[('cloud_in', '/lidar/points')],
+        output='screen',
+    )
+    ekf = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        parameters=[estimation],
+        output='screen',
+    )
+
     return [
-        gazebo, robot, clock,# 这三个并行立刻启动：Gazebo、RSP、时钟桥
+        gazebo, robot, clock,h30,projector,ekf,# 这三个并行立刻启动：Gazebo、RSP、时钟桥
         # 事件1：监听spawn进程退出，spawn成功 → 启动controllers控制器加载器
         RegisterEventHandler(OnProcessExit(
             target_action=spawn, on_exit=after_success(controllers))),

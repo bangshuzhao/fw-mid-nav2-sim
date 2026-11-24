@@ -4,6 +4,10 @@
   <xacro:arg name="controllers_file" default="$(find fw_mid_sim)/config/controllers.yaml"/>
   <xacro:property name="geometry_file" value="$(arg geometry_file)"/>
   <xacro:property name="geom" value="${xacro.load_yaml(geometry_file)}"/>
+  <xacro:arg name="sensor_file" default="$(find fw_mid_sim)/config/sensors.yaml"/>
+  <xacro:property name="sensor_file" value="$(arg sensor_file)"/>
+  <xacro:property name="sensor" value="${xacro.load_yaml(sensor_file)}"/>
+
 
   <link name="base_footprint"/>
   <link name="base_link">
@@ -100,4 +104,111 @@
       <parameters>$(arg controllers_file)</parameters>
     </plugin>
   </gazebo>
+    <link name="lidar_link">
+    <inertial>
+      <mass value="1.6"/>
+      <inertia ixx=".003" ixy="0" ixz="0" iyy=".003" iyz="0" izz=".003"/>
+    </inertial>
+  </link>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="${geom.lidar_xyz}" rpy="${geom.lidar_rpy}"/>
+  </joint>
+  <gazebo reference="lidar_joint">
+    <preserveFixedJoint>true</preserveFixedJoint>
+  </gazebo>
+
+  <xacro:property name="c32_samples" value="${int(round(20000 / sensor.c32.rate_hz))}"/>
+  <xacro:property name="c32_step" value="${2 * pi / c32_samples}"/>
+
+  <gazebo reference="lidar_link">
+    <sensor name="lidar_link" type="gpu_lidar">
+      <topic>/lidar</topic>
+      <ignition_frame_id>lidar_link</ignition_frame_id>
+      <always_on>true</always_on>
+      <update_rate>${sensor.c32.rate_hz}</update_rate>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>${c32_samples}</samples>
+            <resolution>1</resolution>
+            <min_angle>${-pi + c32_step / 2}</min_angle>
+            <max_angle>${pi - c32_step / 2}</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>32</samples>
+            <resolution>1</resolution>
+            <min_angle>${-16 * pi / 180}</min_angle>
+            <max_angle>${15 * pi / 180}</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>${sensor.c32.min_range_m}</min>
+          <max>${sensor.c32.max_range_m}</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0</mean>
+          <stddev>${sensor.c32.range_stddev_m}</stddev>
+        </noise>
+      </lidar>
+    </sensor>
+  </gazebo>
+    <link name="imu_link">
+    <inertial>
+      <mass value="0.055"/>
+      <inertia ixx=".000011" ixy="0" ixz="0" iyy=".000014" iyz="0" izz=".000020"/>
+    </inertial>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="${geom.imu_xyz}" rpy="${geom.imu_rpy}"/>
+  </joint>
+  <gazebo reference="imu_joint">
+    <preserveFixedJoint>true</preserveFixedJoint>
+  </gazebo>
+
+  <xacro:macro name="h30_axis_noise" params="sigma bias">
+    <noise type="gaussian">
+      <mean>0</mean>
+      <stddev>${sigma}</stddev>
+      <dynamic_bias_stddev>${bias}</dynamic_bias_stddev>
+      <dynamic_bias_correlation_time>100</dynamic_bias_correlation_time>
+    </noise>
+  </xacro:macro>
+
+  <xacro:macro name="h30_axes" params="density bandwidth bias">
+    <xacro:property name="sigma" value="${density * sqrt(bandwidth)}"/>
+    <x><xacro:h30_axis_noise sigma="${sigma}" bias="${bias}"/></x>
+    <y><xacro:h30_axis_noise sigma="${sigma}" bias="${bias}"/></y>
+    <z><xacro:h30_axis_noise sigma="${sigma}" bias="${bias}"/></z>
+  </xacro:macro>
+
+  <gazebo reference="imu_link">
+    <sensor name="imu_link" type="imu">
+      <topic>/imu/gazebo</topic>
+      <ignition_frame_id>imu_link</ignition_frame_id>
+      <always_on>true</always_on>
+      <update_rate>${sensor.h30.rate_hz}</update_rate>
+      <imu>
+        <angular_velocity>
+          <xacro:h30_axes
+            density="${sensor.h30.gyro_noise_deg_s_sqrt_hz * pi / 180}"
+            bandwidth="${sensor.h30.gyro_bandwidth_hz}"
+            bias="${sensor.h30.gyro_bias_instability_deg_h * pi / (180 * 3600)}"/>
+        </angular_velocity>
+        <linear_acceleration>
+          <xacro:h30_axes
+            density="${sensor.h30.accel_noise_ug_sqrt_hz * 1e-6 * 9.80665}"
+            bandwidth="${sensor.h30.accel_bandwidth_hz}"
+            bias="${sensor.h30.accel_bias_instability_mg * 0.001 * 9.80665}"/>
+        </linear_acceleration>
+      </imu>
+    </sensor>
+  </gazebo>
+
+
 </robot>

@@ -1,0 +1,42 @@
+pointcloud_to_laserscan:
+  ros__parameters:
+    use_sim_time: true
+    target_frame: lidar_link
+    min_height: -0.77
+    max_height: 0.11
+    angle_min: -3.138501060936203
+    angle_max: 3.144684246243383
+    angle_increment: 0.006283185307179587
+    scan_time: 0.05
+    range_min: 0.40
+    range_max: 16.0
+    use_inf: true
+    queue_size: 4
+
+ekf_filter_node:
+  ros__parameters:
+    use_sim_time: true
+    frequency: 100.0
+    sensor_timeout: 0.15
+    two_d_mode: true
+    publish_tf: true
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom
+
+    odom0: /wheel/odom
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true, true, false,
+                   false, false, false,
+                   false, false, false]
+    odom0_queue_size: 10
+
+    imu0: /imu/data_raw
+    imu0_config: [false, false, false,
+                  false, false, false,
+                  false, false, false,
+                  false, false, true,
+                  false, false, false]
+    imu0_queue_size: 20

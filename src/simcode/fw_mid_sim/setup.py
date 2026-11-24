@@ -14,11 +14,14 @@ setup(
         ('share/' + package_name + '/config',['config/geometry.yaml', 'config/controllers.yaml']),
         ('share/' + package_name + '/launch', ['launch/sim.launch.py']),
         ('share/' + package_name + '/worlds', ['worlds/workshop.sdf']),
+        ('share/' + package_name + '/config', ['config/geometry.yaml','config/controllers.yaml','config/sensors.yaml','config/bridge.yaml','config/estimation.yaml',
+        ]),
     ],
     install_requires=['setuptools'],
         entry_points={
         'console_scripts': [
             'base_control = fw_mid_sim.base_control:main',
+            'h30_sensor = fw_mid_sim.h30_sensor:main',
         ],
     },
 )

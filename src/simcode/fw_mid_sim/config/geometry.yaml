@@ -2,3 +2,7 @@ half_wheelbase: 0.20
 half_track: 0.21
 wheel_radius: 0.12
 wheel_width: 0.085 
+lidar_xyz: '0.034 0.000 0.790'
+lidar_rpy: '0 0 0'
+imu_xyz: '-0.074 0.224 0.26921'
+imu_rpy: '0 0 0'

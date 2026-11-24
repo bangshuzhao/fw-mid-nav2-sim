@@ -1,0 +1,16 @@
+c32:
+  rate_hz: 20
+  min_range_m: 0.25
+  max_range_m: 70.0
+  range_stddev_m: 0.01
+
+h30:
+  rate_hz: 100
+  gyro_full_scale_deg_s: 2000.0
+  accel_full_scale_g: 16.0
+  gyro_noise_deg_s_sqrt_hz: 0.005
+  accel_noise_ug_sqrt_hz: 60.0
+  gyro_bandwidth_hz: 49.0
+  accel_bandwidth_hz: 42.0
+  gyro_bias_instability_deg_h: 4.0
+  accel_bias_instability_mg: 0.035

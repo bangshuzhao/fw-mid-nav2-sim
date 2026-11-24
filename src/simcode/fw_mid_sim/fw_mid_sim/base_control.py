@@ -195,6 +195,12 @@ class BaseControl(Node):
         msg.twist.twist.linear.x = vx
         msg.twist.twist.linear.y = vy
         msg.twist.twist.angular.z = wz
+
+        for i, variance in enumerate((0.04, 0.04, 1e3, 1e3, 1e3, 0.06)):
+            msg.pose.covariance[7 * i] = variance
+
+        for i, variance in enumerate((0.02, 0.02, 1e3, 1e3, 1e3, 0.04)):
+            msg.twist.covariance[7 * i] = variance
         self.odom.publish(msg)
         # 如果开启tf广播，发布 odom → base_footprint 的TF变换
         if self.tf is not None:

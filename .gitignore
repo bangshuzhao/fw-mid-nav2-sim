@@ -3,6 +3,9 @@
 /install/
 /log/
 
+# Local ROS 2 dependency extraction
+/src/othercode/.dependencies/
+
 # Local VS Code settings
 /.vscode/
 
