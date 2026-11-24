@@ -70,23 +70,23 @@
 
 ## 在本机重跑第 3 步
 
-首次下载项目后，在工作区根目录运行 `git submodule update --init --recursive` 取得固定版本的 Nav2 源码。以下命令使用本机已安装的 ROS 2 Humble、Gazebo Fortress、`ros_gz` 和 `gz_ros2_control`。
+首次下载项目后，按[源码构建步骤](#前四步统一从源码构建)取得并编译 `navcode` 和 `othercode` 中的固定版本。下面是第 3 步底盘版的启动和验收命令，对应主仓库的 `409e633`。在当前第 4 步版本上回看四轮反馈时，按 4D 启动，把下面的 `/odom` 换成 `/wheel/odom`。
 
-在终端 A 构建并启动。
+从已完成源码构建的工作区根目录，在终端 A 启动。
 
 ```bash
 source /opt/ros/humble/setup.bash
-colcon build --symlink-install --base-paths src/simcode/fw_mid_sim
 source install/local_setup.bash
 export ROS_DOMAIN_ID=83 ROS_LOCALHOST_ONLY=1
 export IGN_IP=127.0.0.1 IGN_PARTITION=fw_lesson_3c GZ_PARTITION=fw_lesson_3c
 ros2 launch fw_mid_sim sim.launch.py gui:=true
 ```
 
-在终端 B 检查控制器并持续发送左转指令。
+从同一工作区根目录，在终端 B 检查控制器并持续发送左转指令。
 
 ```bash
 source /opt/ros/humble/setup.bash
+source install/local_setup.bash
 export ROS_DOMAIN_ID=83 ROS_LOCALHOST_ONLY=1
 ros2 control list_controllers
 ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist \
@@ -136,30 +136,11 @@ ros2 topic echo /odom nav_msgs/msg/Odometry --once
 
 ### 4D · 在本工作区运行并验收
 
-前面第 3 步的命令对应当时发布 `/odom` 的版本。完成第 4 步后，用 `/wheel/odom` 看轮式反馈，用 `/odometry/filtered` 看融合结果。
-
-终端 A 从工作区根目录构建并启动。运行前确认当前环境能找到 `robot_localization` 和 `pointcloud_to_laserscan`。本机验收用的是解包到 `src/othercode/.dependencies/root` 的依赖。如果该目录还没准备好，可以把本机参考工程留存的 `.deb` 解到这里：
+先完成下文的[源码构建步骤](#前四步统一从源码构建)。从工作区根目录开一个新终端 A，加载 Humble 和本项目 `install/` 后启动仿真。
 
 ```bash
-cd /home/ubuntu/share/yuhesen/fw-mid-nav2-sim
-mkdir -p src/othercode/.dependencies/root
-for deb in /home/ubuntu/share/yuhesen/nav2/src/othercode/.dependencies/*.deb; do
-  dpkg-deb -x "$deb" src/othercode/.dependencies/root
-done
-```
-
-```bash
-cd /home/ubuntu/share/yuhesen/fw-mid-nav2-sim
 source /opt/ros/humble/setup.bash
-colcon build --symlink-install --base-paths src/simcode/fw_mid_sim
 source install/local_setup.bash
-
-FW_DEP_ROOT="$PWD/src/othercode/.dependencies/root"
-export AMENT_PREFIX_PATH="$FW_DEP_ROOT/opt/ros/humble:$AMENT_PREFIX_PATH"
-export LD_LIBRARY_PATH="$FW_DEP_ROOT/opt/ros/humble/lib:$FW_DEP_ROOT/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
-ros2 pkg prefix robot_localization
-ros2 pkg prefix pointcloud_to_laserscan
-
 export ROS_DOMAIN_ID=88 ROS_LOCALHOST_ONLY=1
 export IGN_IP=127.0.0.1 IGN_PARTITION=fw_lesson_4 GZ_PARTITION=fw_lesson_4
 ros2 launch fw_mid_sim sim.launch.py gui:=false
@@ -198,6 +179,74 @@ ros2 topic pub -w 1 -r 20 -t 60 -p 20 /cmd_vel geometry_msgs/msg/Twist \
 
 我一开始看到 `/joint_states` 显示 `base_link`，又在融合速度里读到接近零的值。查了 [`fw_mid.urdf.xacro` 的 `base_footprint_joint`](src/simcode/fw_mid_sim/urdf/fw_mid.urdf.xacro#L29) 才弄清楚，`base_link` 位于 `base_footprint` 正上方 `0.12 m`，两个坐标系都用得上。[`BaseControl.control()`](src/simcode/fw_mid_sim/fw_mid_sim/base_control.py#L126) 在指令中断 `0.30 s` 后会把驱动轮目标速度设为零，所以要在发指令的同时看 B，才能读到稳定左转的速度。
 
-这次验收确认了传感器、投影和融合链路能够运行。下一步用 SLAM Toolbox 读取 `/scan` 和 `odom → base_footprint`，构建二维地图并发布 `map → odom`。
+表中的数据是最初用发行包完成 4D 时记录的功能验收。下一步用 SLAM Toolbox 读取 `/scan` 和 `odom → base_footprint`，构建二维地图并发布 `map → odom`。
+
+### 第四步用到的上游源码
+
+[`sim.launch.py` 中的 `ekf` 节点配置](src/simcode/fw_mid_sim/launch/sim.launch.py#L96) 启动 `robot_localization` 3.5.5 的 `ekf_node`。读实现时，从 [`ekf_node.cpp` 的 `main()`](src/othercode/robot_localization/src/ekf_node.cpp#L42) 看到创建 `RosEkf`，再读 [`FilterBase::processMeasurement()`](src/othercode/robot_localization/src/filter_base.cpp#L194) 如何处理一条测量，最后对照 [`Ekf::predict()`](src/othercode/robot_localization/src/ekf.cpp#L217) 和 [`Ekf::correct()`](src/othercode/robot_localization/src/ekf.cpp#L49)。
+
+| 上游源码目录（均在 `src/othercode/` 下） | 固定版本 | 在项目中的用途 |
+|---|---|---|
+| `robot_localization` | `3.5.5` | EKF 融合轮式速度和 H30 的偏航角速度。 |
+| `geographic_info` | `1.0.6` | 提供 `robot_localization` 声明依赖的 `geographic_msgs`。 |
+| `pointcloud_to_laserscan` | `2.0.1` | 把 C32 的三维点云投影为 `/scan`。 |
+| `ros_gz` | `0.244.26` | 生成 Gazebo 模型，桥接仿真时钟、点云和 IMU。 |
+| `ros2_control` | `2.54.3` | 管理控制器和关节接口。 |
+| `ros2_controllers` | `2.54.1` | 提供关节反馈广播器和转向、驱动用的控制器。 |
+| `gz_ros2_control` | `0.7.21` | 把 Gazebo 的关节接到 ROS 2 控制接口。 |
+| `robot_state_publisher` | `3.0.3` | 按 URDF 和关节反馈发布车体 TF。 |
+| `xacro` | `2.1.1` | 展开 FW-mid 的 Xacro 模型。 |
+| `geographiclib` | `v1.52` | 提供 `robot_localization` 链接的 C++ 库，由 CMake 单独构建。 |
+| `slam_toolbox` | `2.6.10` | 第五步做二维建图。 |
+
+上游地址见 [`.gitmodules`](.gitmodules)，每个子模块的提交由主仓库固定。
+
+## 前四步统一从源码构建
+
+第 1 步从 `src/navcode/navigation2` 构建 MPPI 和它用到的 Nav2 包。第 2 步从同一份源码读导航请求链，自己的 `fw_mid_sim` 放在 `src/simcode`。第 3 步的桥接、关节控制、车体 TF 和 Xacro，以及第 4 步的投影和 EKF，均从 `src/othercode` 构建。整套构建以 ROS 2 Humble 和 Gazebo Fortress 为基础环境。
+
+从头学习时，第 1 步可以只用 `colcon build --symlink-install --base-paths src/navcode --packages-up-to nav2_mppi_controller`。第 2 步用这次编译生成的 `nav2_msgs` 查看 Action 定义，再写自己的 `fw_mid_sim`。第 3 步底盘版可以用 `colcon build --symlink-install --base-paths src/othercode src/simcode --packages-up-to fw_mid_sim ros2controlcli` 带上底盘所需的源码包。到第 4 步再构建 GeographicLib，接通投影和 EKF。
+
+在项目根目录运行以下命令。GeographicLib 先编译成静态库，供 `robot_localization` 链接。`--packages-up-to` 让 colcon 按依赖顺序构建所选包和工作区内的依赖，`GZ_VERSION=fortress` 选择 Fortress。
+
+```bash
+git submodule update --init --recursive
+source /opt/ros/humble/setup.bash
+
+cmake -S src/othercode/geographiclib -B build/geographiclib \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$PWD/install/geographiclib" \
+  -DGEOGRAPHICLIB_LIB_TYPE=STATIC -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+cmake --build build/geographiclib --parallel 8
+cmake --install build/geographiclib
+
+export GZ_VERSION=fortress CMAKE_BUILD_PARALLEL_LEVEL=2
+export CMAKE_PREFIX_PATH="$PWD/install/geographiclib${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
+colcon build --symlink-install --cmake-clean-cache \
+  --base-paths src/navcode src/othercode src/simcode \
+  --packages-up-to nav2_mppi_controller fw_mid_sim ros2controlcli \
+  --executor parallel --parallel-workers 5 \
+  --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+```
+
+在新的启动终端加载 `install/local_setup.bash`。如果之前运行过解包 `.deb` 的命令，要打开新的终端，避免旧的 `AMENT_PREFIX_PATH`、`LD_LIBRARY_PATH` 影响包的选择。下面每行都应输出本项目 `install/<包名>` 下的路径。
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/local_setup.bash
+for pkg in nav2_core nav2_msgs nav2_mppi_controller fw_mid_sim xacro robot_state_publisher \
+  ros_gz_bridge ros_gz_sim gz_ros2_control controller_manager ros2controlcli \
+  forward_command_controller joint_state_broadcaster geographic_msgs \
+  robot_localization pointcloud_to_laserscan; do
+  printf '%s ' "$pkg"
+  ros2 pkg prefix "$pkg"
+done
+```
+
+### 源码版复测
+
+在第 3 步底盘版和当前第 4 步版各发一次 `vx=0.20 m/s`、`wz=+0.30 rad/s`。两次的三个控制器都进入 `active`，轮式里程计都测到约 `0.200 m/s`、`+0.300 rad/s`，停车后轮式速度回到零附近。检查运行中的进程，Gazebo 加载的是工作区编译的控制器插件。
+
+第 4 步同时确认桥接、点云投影和 EKF 使用工作区构建产物。`/scan` 取样一帧有 178 个有效距离，IMU 安装 TF 为单位四元数，`odom → base_footprint` 可查。左转期间取样得到 H30 `wz=+0.284 rad/s`，EKF 输出 `vx=0.203 m/s`、`wz=+0.284 rad/s`。停止仿真时两个 Python 节点仍有退出提示，Gazebo、桥接、投影和 EKF 正常退出。
 
 **2026 年 11 月 24 日**

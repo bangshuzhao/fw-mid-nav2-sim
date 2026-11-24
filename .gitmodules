@@ -1,3 +1,36 @@
 [submodule "navigation2"]
 	path = src/navcode/navigation2
 	url = https://github.com/ros-navigation/navigation2.git
+[submodule "geographic_info"]
+	path = src/othercode/geographic_info
+	url = https://github.com/ros-geographic-info/geographic_info.git
+[submodule "robot_localization"]
+	path = src/othercode/robot_localization
+	url = https://github.com/cra-ros-pkg/robot_localization.git
+[submodule "pointcloud_to_laserscan"]
+	path = src/othercode/pointcloud_to_laserscan
+	url = https://github.com/ros-perception/pointcloud_to_laserscan.git
+[submodule "ros_gz"]
+	path = src/othercode/ros_gz
+	url = https://github.com/gazebosim/ros_gz.git
+[submodule "ros2_control"]
+	path = src/othercode/ros2_control
+	url = https://github.com/ros-controls/ros2_control.git
+[submodule "ros2_controllers"]
+	path = src/othercode/ros2_controllers
+	url = https://github.com/ros-controls/ros2_controllers.git
+[submodule "gz_ros2_control"]
+	path = src/othercode/gz_ros2_control
+	url = https://github.com/ros-controls/gz_ros2_control.git
+[submodule "slam_toolbox"]
+	path = src/othercode/slam_toolbox
+	url = https://github.com/SteveMacenski/slam_toolbox.git
+[submodule "robot_state_publisher"]
+	path = src/othercode/robot_state_publisher
+	url = https://github.com/ros/robot_state_publisher.git
+[submodule "xacro"]
+	path = src/othercode/xacro
+	url = https://github.com/ros/xacro.git
+[submodule "geographiclib"]
+	path = src/othercode/geographiclib
+	url = https://github.com/geographiclib/geographiclib.git
