@@ -1,60 +1,103 @@
-# fw-mid-nav2-sim
-FW‑mid 四轮转向机器人仿真：基于 ROS 2 Humble、Gazebo Fortress，集成 Nav2 导航栈、三维激光雷达体素代价地图与 EKF 扩展卡尔曼滤波。2026-11-22 宁夏.银川
+# FW-mid Nav2 导航小车
 
-## 第九步 · 从规划到行人横穿停车
+基于 ROS 2 Humble 和 Gazebo Fortress 的 FW-mid 四轮转向小车仿真。支持在仓库和办公室地图中定位、规划路径并自主行驶。小车使用三维激光雷达构建局部代价图，并用 EKF 融合轮式里程计与 IMU。
 
-在已安装 ROS 2 Humble、Gazebo Fortress 和工作区构建依赖的 Ubuntu 22.04 上，从仓库根目录初始化源码并构建。首次构建前，将仓库附带的 MPPI 补丁应用到 Navigation2 子模块。补丁已经应用的工作区可以直接构建。
+## 安装与构建
+
+需要 Ubuntu 22.04、ROS 2 Humble、Gazebo Fortress、Git、CMake、C++ 工具链、colcon 和 rosdep。以下命令从项目根目录执行。首次使用 rosdep 时，先运行 `sudo rosdep init` 和 `rosdep update`。
 
 ```bash
 git submodule update --init --recursive
-git -C src/navcode/navigation2 apply "$PWD/patches/navigation2-humble-mppi-feasible-control.patch"
 source /opt/ros/humble/setup.bash
-colcon build --symlink-install --packages-up-to fw_mid_sim \
+export GZ_VERSION=fortress
+
+rosdep install --from-paths src/navcode src/othercode src/simcode \
+  --ignore-src --rosdistro humble --skip-keys geographiclib -y
+```
+
+首次构建时应用仓库自带的 MPPI 补丁。已应用的工作区可跳过这一条。
+
+```bash
+git -C src/navcode/navigation2 apply "$PWD/patches/navigation2-humble-mppi-feasible-control.patch"
+```
+
+先构建 `robot_localization` 所需的 GeographicLib，再构建小车与导航包。
+
+```bash
+cmake -S src/othercode/geographiclib -B build/geographiclib \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$PWD/install/geographiclib" \
+  -DGEOGRAPHICLIB_LIB_TYPE=STATIC -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+cmake --build build/geographiclib --parallel 2
+cmake --install build/geographiclib
+
+export CMAKE_PREFIX_PATH="$PWD/install/geographiclib${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
+CMAKE_BUILD_PARALLEL_LEVEL=2 colcon build --symlink-install \
+  --base-paths src/navcode src/othercode src/simcode \
+  --packages-up-to fw_mid_sim --parallel-workers 3 \
   --cmake-args -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+```
+
+## 启动 Gazebo 和 Nav2
+
+选择下面一张地图。每个终端都先进入项目根目录并加载环境。
+
+```bash
+source /opt/ros/humble/setup.bash
 source install/local_setup.bash
 ```
 
-在两个已加载上述 ROS 和工作区环境的终端中分别启动仿真和导航。
+先在终端 A 启动 Gazebo，等小车出现，再在终端 B 启动 Nav2。无桌面显示时，可把 `gui:=true` 改成 `gui:=false`。切换地图前用 `Ctrl+C` 结束当前的导航和 Gazebo。
+
+### 仓库地图
+
+**终端 A · 启动仓库场景**
 
 ```bash
-ros2 launch fw_mid_sim sim.launch.py scene:=narrow spawn_x:=-4.8 gui:=true
+ros2 launch fw_mid_sim sim.launch.py scene:=workshop spawn_x:=0.95 gui:=true
 ```
+
+**终端 B · 加载仓库地图并启动导航**
 
 ```bash
-ros2 launch fw_mid_sim navigate_step9.launch.py stage:=traffic \
-  map:="$PWD/src/simcode/fw_mid_sim/maps/narrow_office.yaml"
+ros2 launch fw_mid_sim navigate_step9.launch.py stage:=direct \
+  map:="$PWD/results/step5/workshop.yaml"
 ```
 
-等导航终端出现 `Managed nodes are active`，在第三个已加载环境的终端发送目标。
+### 办公室地图
+
+**终端 A · 启动办公室场景**
+
+```bash
+ros2 launch fw_mid_sim sim.launch.py scene:=office \
+  spawn_x:=-4.50 spawn_y:=-1.15 cmd_vel_topic:=/cmd_vel_feasible gui:=true
+```
+
+**终端 B · 加载办公室地图并启动导航**
+
+```bash
+ros2 launch fw_mid_sim navigate_step9.launch.py stage:=office \
+  map:="$(ros2 pkg prefix --share fw_mid_sim)/maps/office.yaml"
+```
+
+## 发送导航目标
+
+终端 B 出现 `Managed nodes are active` 后，在已加载环境的终端 C 发送目标。下面的坐标均基于 `map`，车头朝 `+x`。
+
+**仓库目标 `(1.55, 0.00)`**
 
 ```bash
 ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
-  '{pose: {header: {frame_id: map}, pose: {position: {x: 0.80, y: 0.0}, orientation: {w: 1.0}}}}'
+  '{pose: {header: {frame_id: map}, pose: {position: {x: 1.55, y: 0.0}, orientation: {w: 1.0}}}}' \
+  --feedback
 ```
 
-中央行人横穿时，导航终端依次打印 `Robot to stop due to CrossingStop polygon`、`Robot to continue normal operation` 和 `Goal succeeded`。
-
-## 第十步 · 录制并评测整车导航
-
-重新构建 `fw_mid_sim` 安装新增的场景、地图和规划器配置。评测脚本需要 Python 的 NumPy 和 Shapely，以及工作区的 ROS 2 环境。先结束之前的 Gazebo 和导航进程，再从仓库根目录逐条运行。脚本每次打开 Gazebo GUI，并在实验结束后关闭本轮启动的进程。每次给一个新输出目录。
+**办公室目标 `(6.35, 0.70)`**
 
 ```bash
-source /opt/ros/humble/setup.bash
-source install/local_setup.bash
-colcon build --symlink-install --base-paths src/simcode/fw_mid_sim --packages-select fw_mid_sim
-mkdir -p log/lesson10
-bench=src/simcode/tools/navigation_benchmark
-"$bench/run.bash" office log/lesson10/my-office
-"$bench/run.bash" crossing log/lesson10/my-crossing
-"$bench/run.bash" planners log/lesson10/my-planners
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+  '{pose: {header: {frame_id: map}, pose: {position: {x: 6.35, y: 0.70}, orientation: {w: 1.0}}}}' \
+  --feedback
 ```
 
-| 实验 | 输入和输出 |
-|---|---|
-| `office` | 普通办公室内连续执行东侧、西侧、回访东侧和返回四段。打开 `metrics.csv` 查看各段状态、净空、终点误差、换向、纵向 jerk 和回正。 |
-| `crossing` | 复跑 9D 中央横穿。`metrics.csv` 给出行人入道、零速指令、车身停稳、离道及恢复通行的仿真时间，并统计人车净空和接触消息。 |
-| `planners` | 给 Hybrid-A* 和 State Lattice 发送相同的四组起终点，每组每种重复三次。`planners.csv` 给出规划状态、路径长度、换向点及耗时。 |
-
-`recording.json.gz` 保存时序数据。`inputs/` 保存本轮地图、场景和参数，`inputs.txt` 保存启动选项、Git 版本和哈希。两份启动日志保留运行过程。办公室 `map` 原点对应 Gazebo 世界 `(-4.50, -1.15)`，窄办公室地图与世界坐标对齐。CSV 的终点误差用 Gazebo 真值计算，Nav2 的到点状态使用自身的定位估计。净空采用二维足迹投影的采样结果。
-
-`office` 使用开阔走廊内的四个巡航目标。`office-reference` 保留参考工程的原始四段目标用于对照。当前参考路线在东侧到西侧的短换向段仍会触发进度检查中止，录制会保留已执行的段。
+到点后，终端 C 显示 `SUCCEEDED`。也可以运行 `rviz2 --ros-args -p use_sim_time:=true`，把 **Fixed Frame** 设为 `map`，添加 **Map**（`/map`）和 **Path**（`/plan`）观察地图和规划路径。Map 显示的 **Durability Policy** 设为 **Transient Local**，让 RViz 在导航启动后打开时也能收到地图。
