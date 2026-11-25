@@ -17,7 +17,7 @@ source install/local_setup.bash
 在两个已加载上述 ROS 和工作区环境的终端中分别启动仿真和导航。
 
 ```bash
-ros2 launch fw_mid_sim sim.launch.py scene:=narrow spawn_x:=-4.8 gui:=false
+ros2 launch fw_mid_sim sim.launch.py scene:=narrow spawn_x:=-4.8 gui:=true
 ```
 
 ```bash

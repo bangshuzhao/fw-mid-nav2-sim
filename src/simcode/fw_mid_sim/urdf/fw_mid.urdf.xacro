@@ -9,12 +9,12 @@
   <xacro:property name="sensor" value="${xacro.load_yaml(sensor_file)}"/>
 
 
+  <xacro:property name="mesh_path" value="package://fw_mid_sim/meshes"/>
+  <xacro:include filename="photo_details.xacro"/>
+
   <link name="base_footprint"/>
   <link name="base_link">
-    <visual>
-      <origin xyz="0 0 0.165"/>
-      <geometry><box size="0.68 0.55 0.22"/></geometry>
-    </visual>
+    <xacro:chassis_finish/>
     <collision>
       <origin xyz="0 0 0.165"/>
       <geometry><box size="0.68 0.55 0.22"/></geometry>
@@ -33,7 +33,19 @@
   </joint>
 
   <xacro:macro name="wheel" params="name x y">
+    <xacro:property name="side" value="${1 if y > 0 else -1}"/>
     <link name="${name}_knuckle">
+      <xacro:detail_mesh name="${name}_yoke" file="steering_yoke" color="${charcoal}"
+        xyz="0 ${-side*(geom.wheel_width/2+.007)} 0" rpy="${pi/2} 0 0"/>
+      <xacro:detail_round name="${name}_outer_hub" xyz="0 ${side*(geom.wheel_width/2+.002)} 0"
+        radius=".047" length=".008" color="${black}" rpy="${pi/2} 0 0"/>
+      <xacro:detail_round name="${name}_yoke_top_bolt" xyz=".025 ${-side*(geom.wheel_width/2+.013)} .070"
+        radius=".004" length=".003" color="${steel}" rpy="${pi/2} 0 0"/>
+      <xacro:detail_round name="${name}_yoke_lower_bolt" xyz="-.027 ${-side*(geom.wheel_width/2+.013)} -.024"
+        radius=".004" length=".003" color="${steel}" rpy="${pi/2} 0 0"/>
+      <xacro:detail_round name="${name}_steer_pivot" xyz="0 0 .120" radius=".032" length=".037" color="${charcoal}"/>
+      <xacro:detail_round name="${name}_axle_fastener" xyz="0 ${side*(geom.wheel_width/2+.007)} 0"
+        radius=".009" length=".003" color="${steel}" rpy="${pi/2} 0 0"/>
       <inertial>
         <mass value="1"/>
         <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002"/>
@@ -50,10 +62,12 @@
     </joint>
 
     <link name="${name}_wheel">
-      <visual>
-        <origin rpy="${pi/2} 0 0"/>
-        <geometry><cylinder radius="${geom.wheel_radius}" length="${geom.wheel_width}"/></geometry>
-      </visual>
+      <xacro:detail_mesh name="${name}_tread_and_sidewall" file="wheel_tread_unit" color=".034 .036 .040 1"
+        scale="${geom.wheel_radius} ${geom.wheel_width} ${geom.wheel_radius}"/>
+      <xacro:detail_round name="${name}_outer_rim" xyz="0 ${side*(geom.wheel_width/2+.001)} 0" radius=".072"
+        length=".003" rpy="${pi/2} 0 0" color=".019 .022 .025 1"/>
+      <xacro:detail_round name="${name}_inner_rim" xyz="0 ${-side*(geom.wheel_width/2+.001)} 0" radius=".070"
+        length=".003" rpy="${pi/2} 0 0" color=".022 .025 .029 1"/>
       <collision>
         <origin rpy="${pi/2} 0 0"/>
         <geometry><cylinder radius="${geom.wheel_radius}" length="${geom.wheel_width}"/></geometry>
@@ -104,7 +118,10 @@
       <parameters>$(arg controllers_file)</parameters>
     </plugin>
   </gazebo>
-    <link name="lidar_link">
+  <xacro:workshop_rack/>
+
+  <link name="lidar_link">
+    <xacro:lidar_body/>
     <inertial>
       <mass value="1.6"/>
       <inertia ixx=".003" ixy="0" ixz="0" iyy=".003" iyz="0" izz=".003"/>
@@ -156,7 +173,9 @@
       </lidar>
     </sensor>
   </gazebo>
-    <link name="imu_link">
+  <link name="imu_link">
+    <xacro:detail_mesh name="h30_metal_enclosure" file="h30_metal" color="${steel}"
+      xyz=".0215 0 .0055" rpy="${pi} 0 0" scale=".001 .001 .001"/>
     <inertial>
       <mass value="0.055"/>
       <inertia ixx=".000011" ixy="0" ixz="0" iyy=".000014" iyz="0" izz=".000020"/>

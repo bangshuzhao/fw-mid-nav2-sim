@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:property name="white" value="0.84 0.87 0.88 1"/>
+  <xacro:property name="steel" value="0.61 0.65 0.68 1"/>
+  <xacro:property name="silver" value="0.53 0.57 0.60 1"/>
+  <xacro:property name="black" value="0.025 0.029 0.036 1"/>
+  <xacro:property name="charcoal" value="0.052 0.058 0.065 1"/>
+  <xacro:property name="orange" value="0.94 0.095 0.016 1"/>
+
+  <xacro:macro name="painted" params="color">
+    <material name="rgba_${color.replace(' ', '_')}"><color rgba="${color}"/></material>
+  </xacro:macro>
+
+  <xacro:macro name="detail_mesh" params="name file color xyz:='0 0 0' rpy:='0 0 0' scale:='1 1 1'">
+    <visual name="${name}">
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <geometry><mesh filename="${mesh_path}/${file}.stl" scale="${scale}"/></geometry>
+      <xacro:painted color="${color}"/>
+    </visual>
+  </xacro:macro>
+
+  <xacro:macro name="detail_box" params="name xyz size color rpy:='0 0 0'">
+    <visual name="${name}">
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <geometry><box size="${size}"/></geometry>
+      <xacro:painted color="${color}"/>
+    </visual>
+  </xacro:macro>
+
+  <xacro:macro name="detail_round" params="name xyz radius length color rpy:='0 0 0'">
+    <visual name="${name}">
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <geometry><cylinder radius="${radius}" length="${length}"/></geometry>
+      <xacro:painted color="${color}"/>
+    </visual>
+  </xacro:macro>
+
+  <xacro:macro name="chassis_finish" params="">
+    <xacro:detail_mesh name="painted_body" file="chassis_white_shell" color="${white}"/>
+    <xacro:detail_mesh name="side_guard_shells" file="chassis_side_guards" color="${black}"/>
+    <xacro:detail_mesh name="left_guard_skin" file="chassis_guard_skin" color="${black}"
+      xyz="0 .2687 0" rpy="${pi/2} 0 0"/>
+    <xacro:detail_mesh name="right_guard_skin" file="chassis_guard_skin" color="${black}"
+      xyz="0 -.2757 0" rpy="${pi/2} 0 0"/>
+    <xacro:detail_mesh name="underbody" file="chassis_underbody" color="${charcoal}"/>
+    <xacro:detail_mesh name="emergency_stop" file="chassis_stop_switch" color="0.68 0.025 0.033 1"/>
+    <xacro:detail_mesh name="green_power" file="chassis_power_switch" color="0.026 0.46 0.21 1"/>
+    <xacro:detail_mesh name="service_door_gasket" file="chassis_access_panel" color="0.48 0.52 0.53 1"
+      xyz="-0.330 0.016 0.206" rpy="${pi/2} 0 ${-pi/2}"/>
+    <xacro:detail_mesh name="service_door" file="chassis_access_panel" color="${white}"
+      xyz="-0.331 0.016 0.206" rpy="${pi/2} 0 ${-pi/2}" scale="0.984 0.969 1"/>
+    <xacro:detail_box name="serial_plate" xyz="-0.330 -0.153 0.206" size="0.002 0.073 0.028" color="0.71 0.73 0.74 1"/>
+    <xacro:detail_box name="serial_marks" xyz="-0.3315 -0.153 0.210" size="0.001 0.059 0.003" color="${charcoal}"/>
+    <xacro:detail_box name="serial_barcode" xyz="-0.3315 -0.154 0.201" size="0.001 0.043 0.004" color="${charcoal}"/>
+    <xacro:detail_box name="underbody_crossmember" xyz="-.255 0 .057" size=".046 .300 .042" color="${charcoal}"/>
+    <xacro:detail_box name="deck_warning_decal" xyz="-.250 .070 .2646" size=".029 .036 .0011" color=".91 .69 .060 1"/>
+    <xacro:detail_round name="green_button_center" xyz="-.260 .218 .2687" radius=".0067" length=".0010" color=".68 .80 .71 1"/>
+    <xacro:detail_round name="green_button_inlay" xyz="-.260 .218 .2693" radius=".0054" length=".0010" color=".027 .44 .20 1"/>
+    <xacro:detail_box name="front_left_marker" xyz="-0.309 -0.277 0.166" size="0.006 0.003 0.034" color="0.94 0.52 0.06 1"/>
+    <xacro:detail_box name="front_right_marker" xyz="-0.309 0.270 0.166" size="0.006 0.003 0.034" color="0.94 0.52 0.06 1"/>
+  </xacro:macro>
+
+  <xacro:macro name="profile" params="name x y z length axis:=z">
+    <xacro:property name="orientation" value="${(0, pi/2, 0) if axis == 'x' else ((pi/2, 0, 0) if axis == 'y' else (0, 0, 0))}"/>
+    <xacro:detail_mesh name="${name}" file="profile_40_unit" color="${silver}" xyz="${x} ${y} ${z}"
+      rpy="${orientation[0]} ${orientation[1]} ${orientation[2]}" scale="1 1 ${length}"/>
+  </xacro:macro>
+
+  <xacro:macro name="profile_cap" params="name xyz rpy:='0 0 0'">
+    <xacro:detail_mesh name="${name}" file="profile_end_cap" color="${black}" xyz="${xyz}" rpy="${rpy}"/>
+  </xacro:macro>
+
+  <xacro:macro name="rack_corner" params="name x y">
+    <xacro:profile name="${name}_post" x="${x}" y="${y}" z=".184" length=".368"/>
+    <xacro:profile_cap name="${name}_foot" xyz="${x} ${y} .003"/>
+    <xacro:detail_mesh name="${name}_foot_gusset" file="angle_gusset" color="${steel}"
+      xyz="${x + (.018 if x&lt;0 else -.018)} ${y} .008" rpy="${pi/2} 0 ${0 if x&lt;0 else pi}"/>
+    <xacro:detail_round name="${name}_foot_bolt" xyz="${x + (.036 if x&lt;0 else -.036)} ${y} .005"
+      radius=".0044" length=".003" color="${steel}"/>
+    <xacro:detail_mesh name="${name}_top_gusset" file="angle_gusset" color="${steel}"
+      xyz="${x + (.018 if x&lt;0 else -.018)} ${y} .363" rpy="${-pi/2} 0 ${0 if x&lt;0 else pi}"/>
+  </xacro:macro>
+
+  <xacro:macro name="rail_pair_side" params="name y">
+    <xacro:profile name="${name}_top_rail" x=".006" y="${y}" z=".388" length=".400" axis="x"/>
+    <xacro:profile_cap name="${name}_top_front_cap" xyz="-.197 ${y} .388" rpy="0 ${pi/2} 0"/>
+    <xacro:profile_cap name="${name}_top_rear_cap" xyz=".209 ${y} .388" rpy="0 ${pi/2} 0"/>
+    <xacro:profile name="${name}_lower_front_rail" x="-.254" y="${y}" z=".114" length=".172" axis="x"/>
+    <xacro:profile_cap name="${name}_lower_front_cap" xyz="-.342 ${y} .114" rpy="0 ${pi/2} 0"/>
+    <xacro:profile name="${name}_middle_side_rail" x=".006" y="${y}" z=".288" length=".332" axis="x"/>
+    <xacro:profile name="${name}_deck_rail" x=".006" y="${y}" z=".025" length=".332" axis="x"/>
+  </xacro:macro>
+
+  <xacro:macro name="battery_vents" params="slot:=0">
+    <xacro:if value="${slot &lt; 13}">
+      <xacro:detail_box name="left_vent_${slot}" xyz=".045 .1375 ${.095 + slot*.011}" size=".191 .002 .004" color="0.47 0.037 0.022 1" rpy="0 .025 0"/>
+      <xacro:detail_box name="right_vent_${slot}" xyz=".045 -.1375 ${.095 + slot*.011}" size=".191 .002 .004" color="0.47 0.037 0.022 1" rpy="0 -.025 0"/>
+      <xacro:battery_vents slot="${slot+1}"/>
+    </xacro:if>
+  </xacro:macro>
+
+  <xacro:macro name="battery_outlet" params="name y z">
+    <xacro:detail_box name="${name}_rim" xyz="-.101 ${y} ${z}" size=".003 .048 .035" color="0.091 0.098 0.105 1"/>
+    <xacro:detail_box name="${name}_recess" xyz="-.103 ${y} ${z}" size=".003 .039 .027" color="${black}"/>
+    <xacro:detail_box name="${name}_first" xyz="-.105 ${y-.011} ${z+.006}" size=".001 .004 .010" color=".14 .145 .15 1"/>
+    <xacro:detail_box name="${name}_second" xyz="-.105 ${y+.011} ${z+.006}" size=".001 .004 .010" color=".14 .145 .15 1"/>
+    <xacro:detail_round name="${name}_ground" xyz="-.105 ${y} ${z-.007}" radius=".0035" length=".001" color=".14 .145 .15 1" rpy="0 ${pi/2} 0"/>
+  </xacro:macro>
+
+  <xacro:macro name="workshop_rack" params="">
+    <link name="sensor_rack">
+      <xacro:rack_corner name="front_left" x="-.180" y=".176"/>
+      <xacro:rack_corner name="front_right" x="-.180" y="-.176"/>
+      <xacro:rack_corner name="rear_left" x=".192" y=".176"/>
+      <xacro:rack_corner name="rear_right" x=".192" y="-.176"/>
+      <xacro:rail_pair_side name="left" y=".176"/>
+      <xacro:rail_pair_side name="right" y="-.176"/>
+      <xacro:profile name="rail_top_front_cross" x="-.176" y="0" z=".388" length=".312" axis="y"/>
+      <xacro:profile name="rail_top_rear_cross" x=".190" y="0" z=".388" length=".312" axis="y"/>
+      <xacro:profile name="rail_lidar_cross" x=".034" y="0" z=".399" length=".312" axis="y"/>
+      <xacro:profile name="rail_mid_front_cross" x="-.179" y="0" z=".260" length=".312" axis="y"/>
+      <xacro:profile name="rail_mid_rear_cross" x=".192" y="0" z=".285" length=".312" axis="y"/>
+      <xacro:profile name="inner_lidar_riser_left" x="-.045" y="0" z=".3265" length=".123"/>
+      <xacro:profile name="inner_lidar_riser_right" x=".110" y="0" z=".3265" length=".123"/>
+
+      <xacro:detail_mesh name="power_station_body" file="battery_housing" color="${black}" xyz=".045 0 .147"/>
+      <xacro:detail_mesh name="orange_left_panel" file="battery_vent" color="${orange}" xyz=".045 .135 .150" rpy="${pi/2} 0 0"/>
+      <xacro:detail_mesh name="orange_right_panel" file="battery_vent" color="${orange}" xyz=".045 -.135 .150" rpy="${pi/2} 0 0"/>
+      <xacro:battery_vents/>
+      <xacro:detail_box name="orange_top_trim" xyz=".060 0 .268" size=".012 .191 .004" color="${orange}"/>
+      <xacro:detail_box name="battery_top_badge" xyz="-.028 .035 .269" size=".010 .104 .003" color="0.29 0.30 0.30 1"/>
+      <xacro:detail_mesh name="socket_panel" file="battery_socket_panel" color="${charcoal}" xyz="-.099 0 .134" rpy="${pi/2} 0 ${-pi/2}"/>
+      <xacro:battery_outlet name="front_outlet_left" y=".037" z=".131"/>
+      <xacro:battery_outlet name="front_outlet_right" y="-.028" z=".131"/>
+      <xacro:detail_box name="battery_display" xyz="-.103 .087 .154" size=".003 .027 .019" color="0.055 0.083 0.082 1"/>
+      <xacro:detail_round name="battery_status" xyz="-.105 .083 .142" radius=".0025" length=".001" color="0.16 0.61 0.24 1" rpy="0 ${pi/2} 0"/>
+
+      <xacro:detail_box name="rear_power_station_vent" xyz=".188 0 .150" size=".002 .232 .115" color="${charcoal}"/>
+    </link>
+    <joint name="sensor_rack_joint" type="fixed">
+      <parent link="base_link"/><child link="sensor_rack"/><origin xyz="0 0 .264"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="lidar_isolator" params="name x y">
+    <xacro:detail_round name="${name}_stud" xyz="${x} ${y} -.071" radius=".0021" length=".030" color="${black}"/>
+    <xacro:detail_round name="${name}_upper_washer" xyz="${x} ${y} -.057" radius=".0065" length=".0025" color="${steel}"/>
+    <xacro:detail_round name="${name}_lower_washer" xyz="${x} ${y} -.085" radius=".0065" length=".003" color="${steel}"/>
+    <xacro:detail_mesh name="${name}_spring" file="isolation_spring" color="${steel}" xyz="${x} ${y} -.071"/>
+  </xacro:macro>
+
+  <xacro:macro name="lidar_body" params="">
+    <xacro:detail_round name="optical_band" xyz="0 0 0" radius=".059" length=".058" color="0.018 0.043 0.087 1"/>
+    <xacro:detail_mesh name="blue_optics" file="c32_optics_blue" color="0.036 0.123 0.249 1"/>
+    <xacro:detail_mesh name="optical_highlights" file="c32_optics_edge" color="0.084 0.24 0.43 1"/>
+    <xacro:detail_round name="upper_casting" xyz="0 0 .036" radius=".0598" length=".017" color="${white}"/>
+    <xacro:detail_mesh name="ribbed_cap" file="c32_serrated_cap" color="${white}" xyz="0 0 .040"/>
+    <xacro:detail_round name="lidar_cap_cover" xyz="0 0 .047" radius=".0565" length=".002" color=".78 .81 .83 1"/>
+    <xacro:detail_round name="lower_casting" xyz="0 0 -.038" radius=".0598" length=".019" color="${white}"/>
+    <xacro:detail_round name="sealing_gasket" xyz="0 0 -.050" radius=".0588" length=".010" color="${black}"/>
+    <xacro:detail_round name="lidar_port" xyz="-.059 .021 -.038" radius=".006" length=".011" color="${steel}" rpy="0 ${pi/2} 0"/>
+    <xacro:detail_box name="lidar_isolation_plate" xyz="0 0 -.093" size=".168 .153 .016" color="${black}"/>
+    <xacro:detail_box name="lidar_two_part_mount" xyz="0 0 -.103" size=".092 .078 .010" color="${charcoal}"/>
+    <xacro:lidar_isolator name="fl_isolator" x="-.040" y=".035"/>
+    <xacro:lidar_isolator name="fr_isolator" x="-.040" y="-.035"/>
+    <xacro:lidar_isolator name="rl_isolator" x=".040" y=".035"/>
+    <xacro:lidar_isolator name="rr_isolator" x=".040" y="-.035"/>
+  </xacro:macro>
+</robot>

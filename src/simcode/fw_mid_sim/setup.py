@@ -1,4 +1,6 @@
 
+from glob import glob
+
 from setuptools import setup
 
 package_name = 'fw_mid_sim'
@@ -10,7 +12,8 @@ setup(
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/urdf', ['urdf/fw_mid.urdf.xacro']),
+        ('share/' + package_name + '/urdf', ['urdf/fw_mid.urdf.xacro', 'urdf/photo_details.xacro']),
+        ('share/' + package_name + '/meshes', sorted(glob('meshes/*.stl'))),
         ('share/' + package_name + '/config', [
             'config/geometry.yaml', 'config/controllers.yaml', 'config/sensors.yaml',
             'config/bridge.yaml', 'config/estimation.yaml', 'config/slam.yaml',
