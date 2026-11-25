@@ -18,12 +18,15 @@ setup(
             'config/geometry.yaml', 'config/controllers.yaml', 'config/sensors.yaml',
             'config/bridge.yaml', 'config/estimation.yaml', 'config/slam.yaml',
             'config/nav2_step9.yaml', 'config/nav2_step9_traffic.yaml', 'config/traffic_bridge.yaml',
+            'config/nav2_step10_office.yaml', 'config/office_lattice_004m.json',
         ]),
         ('share/' + package_name + '/launch', ['launch/sim.launch.py', 'launch/navigate_step9.launch.py']),
         ('share/' + package_name + '/behavior_trees', ['behavior_trees/navigate_to_pose_step9.xml']),
-        ('share/' + package_name + '/maps', ['maps/narrow_office.yaml', 'maps/narrow_office.pgm']),
+        ('share/' + package_name + '/maps', [
+            'maps/narrow_office.yaml', 'maps/narrow_office.pgm', 'maps/office.yaml', 'maps/office.pgm',
+        ]),
         ('share/' + package_name + '/worlds', [
-            'worlds/workshop.sdf', 'worlds/narrow_office.sdf', 'worlds/office_floor.obj',
+            'worlds/workshop.sdf', 'worlds/narrow_office.sdf', 'worlds/office.sdf', 'worlds/office_floor.obj',
             'worlds/wood_floor_diffuse.jpg', 'worlds/wood_floor_nor_gl.jpg',
         ]),
     ],

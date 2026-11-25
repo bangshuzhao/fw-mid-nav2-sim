@@ -22,8 +22,10 @@ def make_sim(context):
     # 3. .toxml() 转为纯字符串，就是完整URDF，交给robot_state_publisher
     xml = xacro.process_file(str(share / 'urdf/fw_mid.urdf.xacro')).toxml()
     sim_time = {'use_sim_time': True}
-    narrow = LaunchConfiguration('scene').perform(context) == 'narrow'
-    scene = 'narrow_office' if narrow else 'workshop'
+    scene = LaunchConfiguration('scene').perform(context)
+    narrow = scene == 'narrow'
+    if narrow:
+        scene = 'narrow_office'
     plugin_paths = [str(Path(get_package_prefix('gz_ros2_control')) / 'lib')]
     if narrow:
         plugin_paths.append(str(Path(get_package_prefix('fw_mid_traffic')) / 'lib'))
@@ -66,7 +68,8 @@ def make_sim(context):
         executable='create',
         output='screen',
         arguments=['-world', f'fw_mid_{scene}', '-name', 'fw_mid',
-                   '-topic', '/robot_description', '-z', '0.025','-x', LaunchConfiguration('spawn_x'),],
+                   '-topic', '/robot_description', '-z', '0.025',
+                   '-x', LaunchConfiguration('spawn_x'), '-y', LaunchConfiguration('spawn_y')],
     )
     # 启动controller_manager的spawner，加载ros2_control控制器
     controllers = Node(
@@ -123,8 +126,19 @@ def make_sim(context):
         # 事件2：监听controllers进程退出，控制器加载成功 → 启动base_control控制节点
         RegisterEventHandler(OnProcessExit(
             target_action=controllers, on_exit=after_success(base))),
-        spawn,# 同时启动spawn，生成小车模型
     ]
+    if scene == 'office':
+        # Wait for the larger world to start ticking before the five-second create request.
+        clock_ready = ExecuteProcess(
+            cmd=['timeout', '30s', 'ros2', 'topic', 'echo', '/clock', 'rosgraph_msgs/msg/Clock', '--once'],
+            output='log',
+        )
+        actions.extend([
+            RegisterEventHandler(OnProcessExit(target_action=clock_ready, on_exit=after_success(spawn))),
+            clock_ready,
+        ])
+    else:
+        actions.append(spawn)
     if narrow:
         actions.append(Node(
             package='ros_gz_bridge', executable='parameter_bridge',
@@ -137,10 +151,11 @@ def make_sim(context):
 def generate_launch_description():
     return LaunchDescription([
         # 声明启动参数gui，默认true，只能填true/false
-        # 启动时可以覆盖：ros2 launch fw_mid_sim sim.launch.py gui:=false
+        # 启动时可以覆盖：ros2 launch fw_mid_sim sim.launch.py gui:=true
         DeclareLaunchArgument('gui', default_value='true', choices=['true', 'false']),
         DeclareLaunchArgument('spawn_x', default_value='0.0'),
+        DeclareLaunchArgument('spawn_y', default_value='0.0'),
         DeclareLaunchArgument('cmd_vel_topic', default_value='/cmd_vel'),
-        DeclareLaunchArgument('scene', default_value='workshop', choices=['workshop', 'narrow']),
+        DeclareLaunchArgument('scene', default_value='workshop', choices=['workshop', 'office', 'narrow']),
         OpaqueFunction(function=make_sim),
     ])

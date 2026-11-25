@@ -1,0 +1,52 @@
+# 普通办公室地图原点以仿真出生点为基准。
+amcl:
+  ros__parameters:
+    initial_pose: {x: 0.0, y: 0.0, z: 0.0, yaw: 0.0}
+    # 使用办公室参考场景的激光匹配参数。
+    alpha1: 0.1
+    alpha2: 0.12
+    alpha3: 0.12
+    alpha4: 0.1
+    laser_max_range: 14.0
+    max_beams: 100
+    sigma_hit: 0.1
+    update_min_d: 0.10
+    update_min_a: 0.08
+    transform_tolerance: 1.0
+
+planner_server:
+  ros__parameters:
+    planner_plugins: [GridBased, OfficeLattice]
+    GridBased:
+      lookup_table_size: 5.0
+      tolerance: 0.12
+      minimum_turning_radius: 0.55
+      reverse_penalty: 1.05
+      change_penalty: 0.10
+      smooth_path: false
+    OfficeLattice:
+      plugin: nav2_smac_planner/SmacPlannerLattice
+      lookup_table_size: 5.0
+      allow_unknown: false
+      allow_reverse_expansion: true
+      tolerance: 0.12
+
+controller_server:
+  ros__parameters:
+    progress_checker:
+      movement_time_allowance: 15.0
+    goal_checker:
+      xy_goal_tolerance: 0.15
+    FollowPath:
+      inversion_xy_tolerance: 0.15
+      inversion_yaw_tolerance: 0.25
+      critics: [ConstraintCritic, CostCritic, GoalCritic, GoalAngleCritic, PathAlignCritic, PathFollowCritic, PathDirectionCritic]
+      GoalCritic: {cost_weight: 5.0, threshold_to_consider: 1.0}
+      GoalAngleCritic: {cost_weight: 5.0, threshold_to_consider: 0.55}
+      PathAlignCritic:
+        cost_weight: 12.0
+        offset_from_furthest: 12
+        trajectory_point_step: 4
+        threshold_to_consider: 0.55
+        use_path_orientations: true
+      PathFollowCritic: {cost_weight: 6.0, threshold_to_consider: 1.1}

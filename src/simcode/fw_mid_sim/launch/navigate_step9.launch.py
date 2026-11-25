@@ -16,13 +16,20 @@ def make_navigation(context):
     if stage == 'traffic':
         params.append(str(project / 'config/nav2_step9_traffic.yaml'))
 
+    planner_params = params
+    if stage == 'office':
+        params.append(str(project / 'config/nav2_step10_office.yaml'))
+        planner_params = [*params, {
+            'OfficeLattice.lattice_filepath': str(project / 'config/office_lattice_004m.json'),
+        }]
+
     managed = [
         Node(package='nav2_map_server', executable='map_server', name='map_server',
              parameters=[*params, {'yaml_filename': map_file}], output='screen'),
         Node(package='nav2_amcl', executable='amcl', name='amcl',
              parameters=params, output='screen'),
         Node(package='nav2_planner', executable='planner_server', name='planner_server',
-             parameters=params, output='screen'),
+             parameters=planner_params, output='screen'),
     ]
     names = ['map_server', 'amcl', 'planner_server']
     extras = []
@@ -34,7 +41,7 @@ def make_navigation(context):
         names.append('collision_monitor')
 
     velocity_remap = []
-    if stage in ('smooth', 'traffic'):
+    if stage in ('smooth', 'traffic', 'office'):
         velocity_remap = [('cmd_vel', '/cmd_vel_nav')]
         managed.append(Node(
             package='nav2_velocity_smoother', executable='velocity_smoother',
@@ -76,7 +83,7 @@ def generate_launch_description():
         DeclareLaunchArgument('map'),
         DeclareLaunchArgument('params', default_value=str(project / 'config/nav2_step9.yaml')),
         DeclareLaunchArgument('stage', default_value='direct',
-                              choices=['direct', 'smooth', 'traffic']),
+                              choices=['direct', 'smooth', 'traffic', 'office']),
         DeclareLaunchArgument('autostart', default_value='true', choices=['true', 'false']),
         OpaqueFunction(function=make_navigation),
     ])
